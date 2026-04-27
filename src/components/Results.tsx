@@ -58,7 +58,7 @@ export function Results({ data, result, onReset }: Props) {
       initial={initial}
       animate={animate}
       transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-      className="mt-6 space-y-5"
+      className="mt-6 space-y-7 sm:space-y-8"
     >
       {/* Header card */}
       <div className="card card-lift p-6 relative overflow-hidden result-header">
@@ -71,7 +71,7 @@ export function Results({ data, result, onReset }: Props) {
               <div className="text-[0.65rem] tracking-[0.2em] uppercase text-[var(--text-muted)]">
                 Analysis ready
               </div>
-              <h3 className="mt-1 text-xl font-semibold tracking-tight leading-snug truncate">
+              <h3 className="headline-serif mt-1 text-2xl font-medium tracking-tight leading-tight">
                 {result.paper.title || data.filename}
               </h3>
               <div className="mt-1.5 flex flex-wrap gap-x-3 gap-y-1 text-xs text-[var(--text-muted)]">
@@ -126,7 +126,7 @@ export function Results({ data, result, onReset }: Props) {
       </div>
 
       {/* Score grid */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+      <div className="grid gap-3 grid-cols-2 sm:grid-cols-3 lg:grid-cols-5">
         {(
           [
             ["Clarity", result.scores.clarity, "violet"],
