@@ -1,103 +1,112 @@
 "use client";
 
 import { motion, useReducedMotion } from "framer-motion";
-import {
-  Brain,
-  Layers,
-  Quote,
-  ShieldCheck,
-  Sparkles,
-  FileText,
-} from "lucide-react";
 
-const items = [
+interface Feature {
+  num: string;
+  title: string;
+  body: string;
+}
+
+const items: Feature[] = [
   {
-    icon: Brain,
+    num: "I",
     title: "Reads like a senior reviewer",
-    body: "A structured analyst that scores clarity, novelty, rigor and impact — not just a one-paragraph summary.",
-    accent: "violet",
+    body: "Quilix scores clarity, novelty, rigor and impact — and explains its reasoning. Not a one-paragraph summary; a structured editorial pass.",
   },
   {
-    icon: Layers,
+    num: "II",
     title: "Section-by-section synthesis",
-    body: "Abstract through Conclusion, each rewritten in 3–6 sentences with bulletable key points.",
-    accent: "fuchsia",
+    body: "Abstract through Conclusion, each rewritten in three to six sentences with bulletable key points and an original-gist line.",
   },
   {
-    icon: ShieldCheck,
+    num: "III",
     title: "Plagiarism-safe rewriting",
-    body: "Every paragraph is rephrased structurally — no shared 6-word spans with the source.",
-    accent: "emerald",
+    body: "Every paragraph is rephrased structurally — no shared six-word spans with the source — and graded against an originality rubric.",
   },
   {
-    icon: Quote,
-    title: "Citations done for you",
-    body: "Detected references are reformatted into APA, MLA and BibTeX — ready to paste into your paper.",
-    accent: "sky",
+    num: "IV",
+    title: "Citations, three editions",
+    body: "Detected references are reformatted into APA, MLA and BibTeX. Copy them inline, or pull the BibTeX block into your manuscript.",
   },
   {
-    icon: Sparkles,
+    num: "V",
     title: "Originality scoring",
-    body: "A grade letter and 0–100 score on how independent your rewrite is from the source.",
-    accent: "amber",
+    body: "A grade letter plus a 0–100 score on how independent your rewrite reads — alongside concrete suggestions to lift it further.",
   },
   {
-    icon: FileText,
-    title: "Branded PDF deliverable",
-    body: "Cover page with score ring, executive summary, quote slabs and footer — portfolio-grade output.",
-    accent: "violet",
+    num: "VI",
+    title: "A branded edition",
+    body: "Download a multi-page PDF with cover, score ring, executive summary, quote slabs and footnotes. Portfolio-grade, never markdown.",
   },
 ];
-
-const accentClass: Record<string, string> = {
-  violet: "bg-[color-mix(in_oklab,var(--violet)_12%,var(--surface))] text-[var(--violet)]",
-  fuchsia: "bg-[color-mix(in_oklab,var(--fuchsia)_12%,var(--surface))] text-[var(--fuchsia)]",
-  emerald: "bg-[color-mix(in_oklab,var(--emerald)_14%,var(--surface))] text-[var(--emerald)]",
-  sky: "bg-[color-mix(in_oklab,var(--sky)_14%,var(--surface))] text-[var(--sky)]",
-  amber: "bg-[color-mix(in_oklab,var(--amber)_14%,var(--surface))] text-[var(--amber)]",
-};
 
 export function Features() {
   const reduced = useReducedMotion();
   return (
-    <section id="features" className="mx-auto max-w-6xl px-5 py-16 sm:py-24">
-      <div className="max-w-2xl">
-        <span className="cap-pill mb-4 inline-flex">What you get</span>
-        <h2 className="text-3xl sm:text-4xl font-semibold tracking-tight section-rail">
-          Built like a research deliverable, not a chat reply.
-        </h2>
-        <p className="mt-3 text-[var(--text-soft)] leading-relaxed">
-          Six features that turn a 30-page PDF into a study-ready brief — without
-          burying the citations.
-        </p>
+    <section
+      id="features"
+      className="mx-auto max-w-6xl px-5 py-20 sm:py-28 relative"
+    >
+      <div className="ornament mb-14">
+        <span className="ornament__diamond" />
       </div>
-      <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {items.map((it, i) => (
-          <motion.div
-            key={it.title}
-            initial={reduced ? false : { opacity: 0, y: 16 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.25 }}
-            transition={{
-              duration: 0.45,
-              delay: i * 0.04,
-              ease: [0.22, 1, 0.36, 1],
-            }}
-            className="card card-lift p-5"
+
+      <div className="grid lg:grid-cols-12 gap-10">
+        {/* Left rail — heading + pull quote */}
+        <div className="lg:col-span-5 lg:sticky lg:top-28 self-start">
+          <div className="cap-pill">The edition</div>
+          <h2 className="headline-serif mt-6 text-[clamp(2rem,4.4vw,3.2rem)] leading-[1.04] text-[var(--ink)]">
+            Built like a research <em>deliverable</em>, not a chat reply.
+          </h2>
+          <p className="mt-5 text-[var(--text-soft)] leading-[1.7]">
+            Six features that turn a thirty-page PDF into a study-ready brief —
+            without burying the citations or clipping the structure.
+          </p>
+
+          <figure
+            className="mt-9 pl-5 border-l-2"
+            style={{ borderColor: "var(--violet)" }}
           >
-            <div
-              className={`mb-3.5 grid h-11 w-11 place-items-center rounded-xl ${
-                accentClass[it.accent]
-              }`}
+            <blockquote className="font-serif italic text-[1.18rem] leading-[1.45] text-[var(--ink)]">
+              &ldquo;A calm reading layer over the whole literature — citations,
+              voice, and originality, set with care.&rdquo;
+            </blockquote>
+            <figcaption className="mt-3 text-[11px] tracking-[0.22em] uppercase text-[var(--text-muted)]">
+              Quilix &middot; Editorial principle
+            </figcaption>
+          </figure>
+        </div>
+
+        {/* Right column — editorial entries */}
+        <ol className="lg:col-span-7 space-y-0">
+          {items.map((it, i) => (
+            <motion.li
+              key={it.title}
+              initial={reduced ? false : { opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.3 }}
+              transition={{
+                duration: 0.5,
+                delay: i * 0.05,
+                ease: [0.22, 1, 0.36, 1],
+              }}
+              className="group grid grid-cols-[3.4rem_1fr] gap-x-6 py-7 border-t border-[var(--rule)] first:border-t-0"
             >
-              <it.icon className="h-5 w-5" />
-            </div>
-            <h3 className="font-semibold tracking-tight">{it.title}</h3>
-            <p className="mt-1.5 text-sm text-[var(--text-soft)] leading-relaxed">
-              {it.body}
-            </p>
-          </motion.div>
-        ))}
+              <div className="folio text-[1.35rem] sm:text-[1.55rem] pt-0.5 transition-colors duration-300 group-hover:text-[var(--violet)]">
+                {it.num}
+              </div>
+              <div>
+                <h3 className="headline-serif text-[1.4rem] sm:text-[1.55rem] leading-[1.18] text-[var(--ink)]">
+                  {it.title}
+                </h3>
+                <p className="mt-2 text-[var(--text-soft)] leading-[1.7] max-w-2xl">
+                  {it.body}
+                </p>
+              </div>
+            </motion.li>
+          ))}
+        </ol>
       </div>
     </section>
   );
