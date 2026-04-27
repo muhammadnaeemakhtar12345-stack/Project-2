@@ -586,8 +586,9 @@ body {
 .chip-numeral--fuchsia { color: var(--fuchsia); border-color: color-mix(in oklab, var(--fuchsia) 35%, transparent); }
 .chip-numeral--sky     { color: var(--sky);     border-color: color-mix(in oklab, var(--sky)     35%, transparent); }
 
-/* Quote slab fuchsia rail (chapter II) */
-.quote-slab--fuchsia::before {
+/* Quote slab fuchsia rail (chapter II) — bumped specificity so it wins over the
+   base .quote-slab::before rule defined later in this file. */
+.quote-slab.quote-slab--fuchsia::before {
   background: linear-gradient(180deg, var(--fuchsia), var(--violet));
 }
 
