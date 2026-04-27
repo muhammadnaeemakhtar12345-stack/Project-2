@@ -34,7 +34,12 @@ let pdfjsPromise: Promise<PdfJsLib> | null = null;
 function loadPdfJs(): Promise<PdfJsLib> {
   if (!pdfjsPromise) {
     pdfjsPromise = (async () => {
-      const lib = (await import("pdfjs-dist")) as unknown as PdfJsLib;
+      // Use the legacy build for broader browser compatibility and to avoid
+      // modern build runtime errors like `n.toHex is not a function` that
+      // surface for some PDFs / older Chromium versions.
+      const lib = (await import(
+        "pdfjs-dist/legacy/build/pdf.mjs"
+      )) as unknown as PdfJsLib;
       if (!lib.GlobalWorkerOptions.workerSrc) {
         lib.GlobalWorkerOptions.workerSrc = "/pdf.worker.min.mjs";
       }
