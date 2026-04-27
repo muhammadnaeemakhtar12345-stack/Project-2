@@ -378,7 +378,10 @@ export function Uploader() {
             <button
               role="tab"
               aria-selected={inputMode === "pdf"}
-              onClick={() => setInputMode("pdf")}
+              onClick={() => {
+                setInputMode("pdf");
+                if (stage.kind === "error") setStage({ kind: "idle" });
+              }}
               className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${
                 inputMode === "pdf"
                   ? "bg-[var(--surface)] text-[var(--ink)] shadow-sm"
@@ -394,7 +397,10 @@ export function Uploader() {
             <button
               role="tab"
               aria-selected={inputMode === "text"}
-              onClick={() => setInputMode("text")}
+              onClick={() => {
+                setInputMode("text");
+                if (stage.kind === "error") setStage({ kind: "idle" });
+              }}
               className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${
                 inputMode === "text"
                   ? "bg-[var(--surface)] text-[var(--ink)] shadow-sm"
@@ -513,7 +519,12 @@ export function Uploader() {
                 setApiKey("");
               }}
               onRetry={() => stage.data && runAnalysis(stage.data)}
-              onPickAnother={() => fileRef.current?.click()}
+              onPickAnother={() => {
+                // Make sure the file input is mounted before clicking it.
+                setInputMode("pdf");
+                // The file input remounts on the next paint, so defer the click.
+                setTimeout(() => fileRef.current?.click(), 0);
+              }}
             />
           )}
         </motion.div>
