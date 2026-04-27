@@ -39,7 +39,7 @@ export function Hero() {
             >
               Distill any paper.
               <br />
-              <em>Rewrite</em> it in your voice.
+              <em>Rewrite</em> it in your own words.
             </motion.h1>
 
             <motion.p
@@ -91,7 +91,7 @@ export function Hero() {
               className="mt-12 grid grid-cols-2 sm:grid-cols-4 gap-y-5 gap-x-6 max-w-2xl"
             >
               <Pillar n="01" label="Section detection" />
-              <Pillar n="02" label="Voice paraphrase" />
+              <Pillar n="02" label="Plagiarism-free rewrite" />
               <Pillar n="03" label="Smart citations" />
               <Pillar n="04" label="Branded report" />
             </motion.dl>

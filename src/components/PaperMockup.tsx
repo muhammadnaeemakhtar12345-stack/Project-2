@@ -161,7 +161,7 @@ export function PaperMockup() {
         className="hidden sm:block absolute -left-12 top-[42%] -rotate-[6deg] text-[var(--tea)] font-serif italic text-[13px] leading-snug max-w-[120px]"
       >
         <span aria-hidden="true">&#10148;</span> section detected,
-        rewritten in your voice
+        rewritten in your own words
       </motion.div>
     </div>
   );
