@@ -9,12 +9,17 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 const TEMPERATURE = 0.25;
-const MAX_TOKENS = 1800;
+const MAX_TOKENS = 1400;
 // Cap input chars so a single request stays under provider per-minute token
-// limits on free tiers (e.g. Groq 8B free tier is 6000 TPM). System prompt is
-// ~900 tokens, so 9000 input chars (~2250 tokens) + 1800 output + 900 system +
-// wrapper ≈ 5000 tokens — comfortably under 6000.
-const MAX_TEXT_CHARS = 9000;
+// limits on free tiers. Targets:
+//   Groq llama-3.1-8b-instant free: 6 000 TPM
+//   Gemini 2.0 Flash free:          1 M TPM, 15 RPM
+//   OpenRouter free models:         varies, ~20 K TPM
+// System prompt ≈ 900 tokens, 6 000 input chars ≈ 1 500 tokens,
+// 1 400 output + 200 wrapper ≈ 4 000 tokens total — fits Groq's 6 000 TPM
+// and is comfortable on every other free tier.
+const MAX_TEXT_CHARS = 6000;
+const RETRY_AFTER_MS = 5000;
 
 export async function POST(req: NextRequest) {
   const { userId } = getAuth(req);
@@ -88,10 +93,7 @@ export async function POST(req: NextRequest) {
 
   let upstream: Response;
   try {
-    upstream =
-      provider.format === "anthropic"
-        ? await callAnthropic(provider, key, model, text, voice)
-        : await callOpenAICompatible(provider, key, model, text, voice);
+    upstream = await callWithRetry(provider, key, model, text, voice);
   } catch (err) {
     return NextResponse.json(
       {
@@ -141,6 +143,8 @@ export async function POST(req: NextRequest) {
         {
           error: "Rate limit reached. Please wait a moment and try again.",
           detail,
+          provider: provider.shortLabel,
+          retryAfterMs: 60_000,
         },
         { status: 429 },
       );
@@ -163,6 +167,28 @@ export async function POST(req: NextRequest) {
 
   const result = normalizeAnalysis(parsed);
   return NextResponse.json({ result, filename });
+}
+
+async function callWithRetry(
+  provider: ProviderConfig,
+  key: string,
+  model: string,
+  text: string,
+  voice: string,
+): Promise<Response> {
+  const call = () =>
+    provider.format === "anthropic"
+      ? callAnthropic(provider, key, model, text, voice)
+      : callOpenAICompatible(provider, key, model, text, voice);
+
+  const first = await call();
+  // Single retry on 429 / 503 only, after a short back-off, in case the
+  // provider's per-minute window just rolled over. Returning the second
+  // response unconditionally is fine because we don't read `first`'s body
+  // when we retry.
+  if (first.status !== 429 && first.status !== 503) return first;
+  await new Promise((r) => setTimeout(r, RETRY_AFTER_MS));
+  return call();
 }
 
 async function callOpenAICompatible(
