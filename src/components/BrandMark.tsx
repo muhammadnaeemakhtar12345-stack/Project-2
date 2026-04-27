@@ -1,5 +1,9 @@
 import * as React from "react";
 
+/**
+ * Quilix mark — a folded research page with a quill-stroke spine.
+ * Editorial, scholarly, monochromatic ink — no rainbow gradient.
+ */
 export function BrandMark({ className = "h-8 w-8" }: { className?: string }) {
   return (
     <svg
@@ -9,32 +13,38 @@ export function BrandMark({ className = "h-8 w-8" }: { className?: string }) {
       aria-hidden="true"
     >
       <defs>
-        <linearGradient id="qx-grad" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
-          <stop offset="0%" stopColor="#7c3aed" />
-          <stop offset="50%" stopColor="#2563eb" />
-          <stop offset="100%" stopColor="#db2777" />
+        <linearGradient id="qx-paper" x1="0" y1="0" x2="0" y2="64">
+          <stop offset="0%" stopColor="var(--paper)" />
+          <stop offset="100%" stopColor="var(--paper-edge)" />
         </linearGradient>
       </defs>
-      <rect x="4" y="4" width="56" height="56" rx="14" fill="url(#qx-grad)" />
+      {/* page body */}
       <path
-        d="M22 18 L42 18 Q47 18 47 23 L47 41 Q47 46 42 46 L24 46 Q22 46 22 44 Z"
-        fill="rgba(255,255,255,0.18)"
-        stroke="rgba(255,255,255,0.85)"
-        strokeWidth="2.2"
+        d="M14 8 L42 8 L54 20 L54 56 Q54 58 52 58 L14 58 Q12 58 12 56 L12 10 Q12 8 14 8 Z"
+        fill="url(#qx-paper)"
+        stroke="var(--ink)"
+        strokeWidth="2"
+        strokeLinejoin="round"
       />
+      {/* folded corner */}
       <path
-        d="M30 28 L40 28 M30 34 L38 34"
-        stroke="white"
+        d="M42 8 L42 20 L54 20 Z"
+        fill="color-mix(in oklab, var(--paper-edge) 70%, var(--ink))"
+        stroke="var(--ink)"
+        strokeWidth="2"
+        strokeLinejoin="round"
+      />
+      {/* text rules */}
+      <line x1="20" y1="32" x2="46" y2="32" stroke="var(--ink)" strokeOpacity="0.32" strokeWidth="1.4" strokeLinecap="round" />
+      <line x1="20" y1="38" x2="42" y2="38" stroke="var(--ink)" strokeOpacity="0.32" strokeWidth="1.4" strokeLinecap="round" />
+      <line x1="20" y1="44" x2="38" y2="44" stroke="var(--ink)" strokeOpacity="0.32" strokeWidth="1.4" strokeLinecap="round" />
+      {/* quill stroke / underline accent */}
+      <path
+        d="M22 50 L44 50"
+        stroke="var(--violet)"
         strokeWidth="2.4"
         strokeLinecap="round"
       />
-      <path
-        d="M40 44 L50 54"
-        stroke="white"
-        strokeWidth="3"
-        strokeLinecap="round"
-      />
-      <circle cx="50" cy="54" r="3" fill="white" />
     </svg>
   );
 }

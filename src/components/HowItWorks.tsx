@@ -1,88 +1,151 @@
 "use client";
 
 import { motion, useReducedMotion, type Variants } from "framer-motion";
-import { FileUp, ScanText, PenLine, Quote, FileDown } from "lucide-react";
+import { Upload, BookOpen, PenLine, Quote, FileDown } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 
-const steps = [
+interface Step {
+  icon: LucideIcon;
+  title: string;
+  body: string;
+  accent: "violet" | "fuchsia" | "sky" | "emerald" | "amber";
+}
+
+const steps: Step[] = [
   {
-    icon: FileUp,
-    title: "Drop in a paper",
-    body: "Upload any research PDF. Quilix parses it locally in your browser before any analysis begins.",
+    icon: Upload,
+    title: "Drop a PDF",
+    body: "Upload any research paper. We extract the text in your browser before any analysis begins.",
+    accent: "violet",
   },
   {
-    icon: ScanText,
-    title: "Section-aware reading",
-    body: "We detect Abstract, Methods, Results, Discussion and more — and summarise each in plain English.",
+    icon: BookOpen,
+    title: "Read it for you",
+    body: "Quilix detects every section — Abstract through Conclusion — and summarises each in plain English.",
+    accent: "sky",
   },
   {
     icon: PenLine,
-    title: "Plagiarism-free rewrites",
-    body: "Every section gets a clean, original rewrite in your voice — never copying the source phrasing.",
+    title: "Rewrite in your voice",
+    body: "Each section is paraphrased in academic, concise, or neutral tone — never copying source phrasing.",
+    accent: "fuchsia",
   },
   {
     icon: Quote,
-    title: "Smart citations",
-    body: "References are extracted and reformatted into APA, MLA and BibTeX — ready to drop into your paper.",
+    title: "Cite three ways",
+    body: "References are reformatted into APA, MLA and BibTeX, ready to paste straight into your manuscript.",
+    accent: "emerald",
   },
   {
     icon: FileDown,
-    title: "Branded PDF report",
-    body: "Download a polished, multi-page report with score ring, executive summary, and quote slabs.",
+    title: "Download the report",
+    body: "A polished, multi-page PDF with cover, originality score, executive summary and per-section detail.",
+    accent: "amber",
   },
 ];
+
+const accentMap: Record<string, { fg: string; bg: string; ring: string }> = {
+  violet: {
+    fg: "var(--violet)",
+    bg: "color-mix(in oklab, var(--violet) 12%, var(--surface))",
+    ring: "color-mix(in oklab, var(--violet) 50%, transparent)",
+  },
+  fuchsia: {
+    fg: "var(--fuchsia)",
+    bg: "color-mix(in oklab, var(--fuchsia) 12%, var(--surface))",
+    ring: "color-mix(in oklab, var(--fuchsia) 50%, transparent)",
+  },
+  sky: {
+    fg: "var(--sky)",
+    bg: "color-mix(in oklab, var(--sky) 12%, var(--surface))",
+    ring: "color-mix(in oklab, var(--sky) 50%, transparent)",
+  },
+  emerald: {
+    fg: "var(--emerald)",
+    bg: "color-mix(in oklab, var(--emerald) 14%, var(--surface))",
+    ring: "color-mix(in oklab, var(--emerald) 50%, transparent)",
+  },
+  amber: {
+    fg: "var(--amber)",
+    bg: "color-mix(in oklab, var(--amber) 14%, var(--surface))",
+    ring: "color-mix(in oklab, var(--amber) 50%, transparent)",
+  },
+};
 
 export function HowItWorks() {
   const reduced = useReducedMotion();
   const variants: Variants = {
-    hidden: { opacity: 0, y: 16 },
+    hidden: { opacity: 0, y: 18 },
     show: (i: number) => ({
       opacity: 1,
       y: 0,
       transition: {
-        duration: 0.45,
-        delay: i * 0.05,
+        duration: 0.55,
+        delay: i * 0.07,
         ease: [0.22, 1, 0.36, 1] as [number, number, number, number],
       },
     }),
   };
+
   return (
-    <section id="how" className="mx-auto max-w-6xl px-5 py-16 sm:py-24">
-      <div className="max-w-2xl">
-        <span className="cap-pill mb-4 inline-flex">How it works</span>
-        <h2 className="text-3xl sm:text-4xl font-semibold tracking-tight section-rail">
-          Five calm steps from paper to polished output.
+    <section id="how" className="mx-auto max-w-6xl px-5 py-20 sm:py-28 relative">
+      <div className="ornament mb-14">
+        <span className="ornament__diamond" />
+      </div>
+
+      <div className="mx-auto max-w-2xl text-center">
+        <div className="cap-pill justify-center">How it works</div>
+        <h2 className="headline-serif mt-6 text-[clamp(2rem,4.4vw,3.2rem)] leading-[1.04] text-[var(--ink)]">
+          Five quiet steps from <em>raw paper</em> to polished report.
         </h2>
-        <p className="mt-3 text-[var(--text-soft)] leading-relaxed">
-          A focused workflow, no clutter — built for students, reviewers, and
+        <p className="mt-5 text-[var(--text-soft)] leading-[1.7]">
+          A focused workflow, no clutter — designed for students and
           researchers who need clarity fast.
         </p>
       </div>
 
-      <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-        {steps.map((s, i) => (
-          <motion.div
-            key={s.title}
-            initial={reduced ? false : "hidden"}
-            whileInView="show"
-            viewport={{ once: true, amount: 0.3 }}
-            custom={i}
-            variants={variants}
-            className="card card-lift p-5"
-          >
-            <div className="mb-3.5 grid h-10 w-10 place-items-center rounded-xl bg-[color-mix(in_oklab,var(--violet)_12%,var(--surface))] text-[var(--violet)]">
-              <s.icon className="h-5 w-5" />
-            </div>
-            <div className="text-[0.65rem] tracking-[0.18em] uppercase text-[var(--text-muted)] mb-1">
-              Step {i + 1}
-            </div>
-            <h3 className="font-semibold tracking-tight text-[var(--text)] leading-snug">
-              {s.title}
-            </h3>
-            <p className="mt-1.5 text-sm text-[var(--text-soft)] leading-relaxed">
-              {s.body}
-            </p>
-          </motion.div>
-        ))}
+      <div className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-5">
+        {steps.map((s, i) => {
+          const a = accentMap[s.accent];
+          return (
+            <motion.div
+              key={s.title}
+              initial={reduced ? false : "hidden"}
+              whileInView="show"
+              viewport={{ once: true, amount: 0.3 }}
+              custom={i}
+              variants={variants}
+              className="step-card group relative"
+              style={
+                {
+                  "--accent": a.fg,
+                  "--accent-bg": a.bg,
+                  "--accent-ring": a.ring,
+                } as React.CSSProperties
+              }
+            >
+              <div className="step-card__inner">
+                <div className="flex items-start justify-between mb-5">
+                  <span
+                    className="step-card__icon"
+                    style={{ background: a.bg, color: a.fg }}
+                  >
+                    <s.icon className="h-5 w-5" />
+                  </span>
+                  <span className="folio text-[1.05rem]">
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
+                </div>
+                <h3 className="headline-serif text-[1.32rem] leading-[1.2] text-[var(--ink)]">
+                  {s.title}
+                </h3>
+                <p className="mt-2.5 text-[14px] text-[var(--text-soft)] leading-[1.65]">
+                  {s.body}
+                </p>
+              </div>
+            </motion.div>
+          );
+        })}
       </div>
     </section>
   );

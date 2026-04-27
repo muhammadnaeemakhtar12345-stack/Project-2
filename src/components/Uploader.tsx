@@ -204,16 +204,17 @@ export function Uploader() {
   return (
     <section id="analyze" className="mx-auto max-w-5xl px-5 py-12 sm:py-16">
       <div className="max-w-2xl">
-        <span className="cap-pill mb-4 inline-flex">
-          <Sparkles className="h-3.5 w-3.5" />
-          Analyze a paper
-        </span>
-        <h2 className="text-3xl sm:text-4xl font-semibold tracking-tight section-rail">
-          Upload, paraphrase, cite — in one calm flow.
+        <div className="ornament mb-12">
+          <span className="ornament__diamond" />
+        </div>
+        <div className="cap-pill">The reading desk</div>
+        <h2 className="headline-serif mt-6 text-[clamp(2rem,4.4vw,3.2rem)] leading-[1.04] text-[var(--ink)]">
+          Upload, paraphrase, cite — in one <em>calm</em> sitting.
         </h2>
-        <p className="mt-3 text-[var(--text-soft)] leading-relaxed">
-          Drop a PDF, choose a voice, and Quilix returns a section-aware
-          analysis with original-rewrites and citation entries.
+        <p className="mt-5 text-[var(--text-soft)] leading-[1.7] max-w-xl">
+          Drop a PDF, choose a voice, connect any AI provider with your own
+          key, and Quilix returns a section-aware synthesis with paraphrases
+          and citation entries.
         </p>
       </div>
 
