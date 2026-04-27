@@ -1,0 +1,385 @@
+@import "tailwindcss";
+
+/* ---------- Design tokens ---------- */
+:root {
+  --bg: #f7f4ff;
+  --surface: #ffffff;
+  --surface-soft: #faf7ff;
+  --border: #e5e0f5;
+  --text: #0f172a;        /* slate-900 */
+  --text-soft: #475569;   /* slate-600 */
+  --text-muted: #64748b;  /* slate-500 */
+  --violet: #7c3aed;
+  --violet-soft: #c4b5fd;
+  --fuchsia: #db2777;
+  --sky: #2563eb;
+  --emerald: #059669;
+  --amber: #d97706;
+  --rose: #e11d48;
+}
+
+[data-theme="dark"] {
+  --bg: #0b0a16;
+  --surface: #131127;
+  --surface-soft: #1a1830;
+  --border: #2a2748;
+  --text: #f1f5f9;
+  --text-soft: #cbd5e1;
+  --text-muted: #94a3b8;
+  --violet: #a78bfa;
+  --violet-soft: #5b21b6;
+  --fuchsia: #f472b6;
+  --sky: #60a5fa;
+  --emerald: #34d399;
+  --amber: #fbbf24;
+  --rose: #fb7185;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-soft: var(--surface-soft);
+  --color-border: var(--border);
+  --color-text: var(--text);
+  --color-text-soft: var(--text-soft);
+  --color-text-muted: var(--text-muted);
+  --color-brand-violet: var(--violet);
+  --color-brand-fuchsia: var(--fuchsia);
+  --color-brand-sky: var(--sky);
+  --color-status-emerald: var(--emerald);
+  --color-status-amber: var(--amber);
+  --color-status-rose: var(--rose);
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system,
+    "Segoe UI", Roboto, sans-serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, "JetBrains Mono",
+    "SF Mono", Menlo, monospace;
+}
+
+* {
+  border-color: var(--border);
+}
+
+html,
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: rgba(124, 58, 237, 0.2);
+  color: var(--text);
+}
+
+/* ---------- Scroll progress bar ---------- */
+.scroll-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  transform-origin: left;
+  background: linear-gradient(90deg, #7c3aed, #2563eb, #db2777);
+  z-index: 60;
+  pointer-events: none;
+  box-shadow: 0 0 12px rgba(124, 58, 237, 0.6);
+}
+
+/* ---------- Header densify ---------- */
+.header {
+  background: color-mix(in oklab, var(--bg) 78%, transparent);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid transparent;
+  transition: background 0.35s ease, box-shadow 0.35s ease, border-color 0.35s ease;
+}
+.header-scrolled {
+  background: color-mix(in oklab, var(--surface) 92%, transparent) !important;
+  border-bottom-color: var(--border) !important;
+  box-shadow:
+    0 1px 2px rgba(15, 23, 42, 0.04),
+    0 12px 32px -16px rgba(124, 58, 237, 0.22);
+}
+
+/* ---------- Card lift ---------- */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+}
+.card-lift {
+  position: relative;
+  transition:
+    transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.35s ease;
+  will-change: transform;
+}
+.card-lift:hover {
+  transform: translateY(-4px);
+  border-color: color-mix(in oklab, var(--violet) 35%, var(--border));
+  box-shadow:
+    0 1px 2px rgba(15, 23, 42, 0.04),
+    0 24px 48px -16px rgba(124, 58, 237, 0.28);
+}
+
+/* ---------- Primary CTA ---------- */
+.btn-primary {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  border-radius: 12px;
+  font-weight: 600;
+  color: #fff;
+  background: linear-gradient(135deg, #7c3aed 0%, #db2777 100%);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow:
+    0 1px 2px rgba(124, 58, 237, 0.2),
+    0 12px 24px -10px rgba(219, 39, 119, 0.4);
+  transition:
+    transform 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.25s ease,
+    filter 0.25s ease;
+}
+.btn-primary:hover:not(:disabled) {
+  transform: translateY(-1px) scale(1.012);
+  filter: brightness(1.06);
+  box-shadow:
+    0 1px 2px rgba(124, 58, 237, 0.3),
+    0 18px 36px -10px rgba(219, 39, 119, 0.55);
+}
+.btn-primary:active:not(:disabled) {
+  transform: translateY(0) scale(0.99);
+}
+.btn-primary:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* ---------- Secondary / ghost button ---------- */
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.55rem 0.95rem;
+  border-radius: 10px;
+  font-weight: 500;
+  color: var(--text);
+  background: transparent;
+  border: 1px solid var(--border);
+  transition:
+    transform 0.2s ease,
+    background 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease;
+}
+.btn-ghost:hover:not(:disabled) {
+  background: color-mix(in oklab, var(--violet) 8%, var(--surface));
+  border-color: color-mix(in oklab, var(--violet) 35%, var(--border));
+  transform: translateY(-1px);
+}
+
+/* ---------- Shimmer headline ---------- */
+.gradient-text-shimmer {
+  background: linear-gradient(
+    100deg,
+    #7c3aed 0%,
+    #2563eb 25%,
+    #db2777 50%,
+    #2563eb 75%,
+    #7c3aed 100%
+  );
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: shimmer 6s linear infinite;
+}
+@keyframes shimmer {
+  0%   { background-position: 0% 50%; }
+  100% { background-position: 200% 50%; }
+}
+
+/* ---------- Ambient orbs ---------- */
+.orb {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(80px);
+  opacity: 0.45;
+  pointer-events: none;
+  will-change: transform;
+}
+[data-theme="dark"] .orb {
+  opacity: 0.32;
+  filter: blur(90px);
+}
+
+/* ---------- Pill / hero capability tag ---------- */
+.cap-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.85rem;
+  border-radius: 9999px;
+  background: color-mix(in oklab, var(--violet) 10%, var(--surface));
+  color: var(--violet);
+  border: 1px solid color-mix(in oklab, var(--violet) 30%, transparent);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+/* ---------- Numbered step pill (provider drawer) ---------- */
+.step-pill {
+  display: inline-grid;
+  place-items: center;
+  height: 1.25rem;
+  width: 1.25rem;
+  border-radius: 9999px;
+  background: color-mix(in oklab, var(--violet) 16%, var(--surface));
+  color: var(--violet);
+  font-size: 0.68rem;
+  font-weight: 700;
+  border: 1px solid color-mix(in oklab, var(--violet) 28%, transparent);
+}
+
+/* ---------- Severity badges ---------- */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.18rem 0.55rem;
+  border-radius: 9999px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  border: 1px solid transparent;
+}
+.badge-emerald { background: rgba(16,185,129,0.10); color: var(--emerald); border-color: rgba(16,185,129,0.35); }
+.badge-amber   { background: rgba(217,119,6,0.10);  color: var(--amber);   border-color: rgba(217,119,6,0.35); }
+.badge-rose    { background: rgba(225,29,72,0.10);  color: var(--rose);    border-color: rgba(225,29,72,0.35); }
+.badge-violet  { background: rgba(124,58,237,0.10); color: var(--violet);  border-color: rgba(124,58,237,0.35); }
+.badge-sky     { background: rgba(37,99,235,0.10);  color: var(--sky);     border-color: rgba(37,99,235,0.35); }
+
+/* ---------- Section heading rail ---------- */
+.section-rail {
+  position: relative;
+  padding-left: 14px;
+}
+.section-rail::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 6px;
+  bottom: 6px;
+  width: 4px;
+  border-radius: 4px;
+  background: linear-gradient(180deg, var(--violet), var(--fuchsia));
+}
+
+/* ---------- Quote slab (used for paraphrased / rewrite blocks) ---------- */
+.quote-slab {
+  position: relative;
+  padding: 1rem 1rem 1rem 1.25rem;
+  background: var(--surface-soft);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  font-size: 0.95rem;
+  line-height: 1.65;
+}
+.quote-slab::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 12px;
+  bottom: 12px;
+  width: 3px;
+  border-radius: 3px;
+  background: linear-gradient(180deg, var(--violet), var(--fuchsia));
+}
+
+/* ---------- Code/citation slab ---------- */
+.code-slab {
+  background: #0f172a;
+  color: #e2e8f0;
+  border-radius: 12px;
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  line-height: 1.55;
+  overflow: hidden;
+  border: 1px solid #1e293b;
+}
+.code-slab__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.55rem 0.85rem;
+  background: #1e293b;
+  border-bottom: 1px solid #334155;
+  color: #cbd5e1;
+  font-size: 0.72rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.code-slab__dots { display: inline-flex; gap: 6px; }
+.code-slab__dot { width: 9px; height: 9px; border-radius: 9999px; }
+.code-slab__body {
+  padding: 0.85rem 1rem;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* ---------- Score ring (small inline use; PDF ring is in jspdf) ---------- */
+.score-ring {
+  --pct: 0;
+  width: 88px;
+  height: 88px;
+  border-radius: 9999px;
+  background: conic-gradient(
+    var(--violet) calc(var(--pct) * 1%),
+    color-mix(in oklab, var(--violet) 12%, var(--surface)) 0
+  );
+  display: grid;
+  place-items: center;
+  position: relative;
+}
+.score-ring__inner {
+  width: 70px;
+  height: 70px;
+  border-radius: 9999px;
+  background: var(--surface);
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+}
+
+/* ---------- Misc utilities ---------- */
+.dropzone {
+  border: 1.5px dashed color-mix(in oklab, var(--violet) 40%, var(--border));
+  border-radius: 16px;
+  background: color-mix(in oklab, var(--violet) 4%, var(--surface));
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+.dropzone--active {
+  border-color: var(--violet);
+  background: color-mix(in oklab, var(--violet) 12%, var(--surface));
+}
+
+/* Gentle entrance */
+@media (prefers-reduced-motion: no-preference) {
+  .float-y {
+    animation: floatY 9s ease-in-out infinite;
+  }
+}
+@keyframes floatY {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-14px); }
+}
