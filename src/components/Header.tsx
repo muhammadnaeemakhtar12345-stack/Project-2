@@ -3,12 +3,19 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useScroll } from "framer-motion";
+import {
+  SignInButton,
+  SignUpButton,
+  UserButton,
+  useAuth,
+} from "@clerk/nextjs";
 import { ThemeToggle } from "./ThemeToggle";
 import { BrandMark } from "./BrandMark";
 
 export function Header() {
   const { scrollY } = useScroll();
   const [scrolled, setScrolled] = useState(false);
+  const { isLoaded, isSignedIn } = useAuth();
 
   useEffect(() => {
     const unsub = scrollY.on("change", (v) => setScrolled(v > 24));
@@ -55,9 +62,35 @@ export function Header() {
 
         <div className="flex items-center gap-2.5">
           <ThemeToggle />
-          <a href="#analyze" className="btn-primary hidden sm:inline-flex">
-            Begin a synthesis
-          </a>
+          {isLoaded && !isSignedIn && (
+            <>
+              <SignInButton mode="modal">
+                <button className="btn-ghost text-sm">Sign in</button>
+              </SignInButton>
+              <SignUpButton mode="modal">
+                <button className="btn-primary text-sm hidden sm:inline-flex">
+                  Sign up
+                </button>
+              </SignUpButton>
+            </>
+          )}
+          {isLoaded && isSignedIn && (
+            <>
+              <a
+                href="#analyze"
+                className="btn-primary text-sm hidden sm:inline-flex"
+              >
+                Begin a synthesis
+              </a>
+              <UserButton
+                appearance={{
+                  elements: {
+                    avatarBox: "h-9 w-9",
+                  },
+                }}
+              />
+            </>
+          )}
         </div>
       </div>
     </header>
