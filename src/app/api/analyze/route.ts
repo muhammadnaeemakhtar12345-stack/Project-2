@@ -8,11 +8,12 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 const TEMPERATURE = 0.25;
-const MAX_TOKENS = 2400;
+const MAX_TOKENS = 1800;
 // Cap input chars so a single request stays under provider per-minute token
-// limits on free tiers (e.g. Groq 8B free tier is 6000 TPM). ~3.6 chars per
-// token gives ~3300 input tokens + 2400 output + ~300 system = ~6000.
-const MAX_TEXT_CHARS = 12000;
+// limits on free tiers (e.g. Groq 8B free tier is 6000 TPM). System prompt is
+// ~900 tokens, so 9000 input chars (~2250 tokens) + 1800 output + 900 system +
+// wrapper ≈ 5000 tokens — comfortably under 6000.
+const MAX_TEXT_CHARS = 9000;
 
 export async function POST(req: NextRequest) {
   let body: AnalyzeRequestBody;
