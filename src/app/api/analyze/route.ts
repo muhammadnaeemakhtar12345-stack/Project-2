@@ -176,19 +176,28 @@ async function callWithRetry(
   text: string,
   voice: string,
 ): Promise<Response> {
-  const call = () =>
+  const call = (t: string) =>
     provider.format === "anthropic"
-      ? callAnthropic(provider, key, model, text, voice)
-      : callOpenAICompatible(provider, key, model, text, voice);
+      ? callAnthropic(provider, key, model, t, voice)
+      : callOpenAICompatible(provider, key, model, t, voice);
 
-  const first = await call();
-  // Single retry on 429 / 503 only, after a short back-off, in case the
-  // provider's per-minute window just rolled over. Returning the second
-  // response unconditionally is fine because we don't read `first`'s body
-  // when we retry.
+  // Attempt 1: full text.
+  const first = await call(text);
   if (first.status !== 429 && first.status !== 503) return first;
+
+  // Attempt 2: same text after short back-off (rate window may have rolled).
   await new Promise((r) => setTimeout(r, RETRY_AFTER_MS));
-  return call();
+  const second = await call(text);
+  if (second.status !== 429 && second.status !== 503) return second;
+
+  // Attempt 3 (last resort): drastically shrink the input so the request
+  // fits even an exhausted Groq free-tier window. We sample the first
+  // and last 25% of the original to preserve abstract + conclusion intent.
+  const shrunk =
+    text.length > 3000 ? smartSample(text, 3000) : text;
+  if (shrunk === text) return second;
+  await new Promise((r) => setTimeout(r, RETRY_AFTER_MS));
+  return call(shrunk);
 }
 
 async function callOpenAICompatible(
