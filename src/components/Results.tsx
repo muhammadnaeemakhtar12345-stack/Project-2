@@ -8,11 +8,9 @@ import {
   Copy,
   Download,
   FileText,
-  ListOrdered,
   PenLine,
   Quote,
   RotateCcw,
-  ShieldCheck,
   Sparkles,
 } from "lucide-react";
 import { useMemo, useState } from "react";
@@ -26,14 +24,6 @@ interface Props {
   result: AnalysisResult;
   onReset: () => void;
 }
-
-const gradeAccent: Record<AnalysisResult["plagiarismRisk"]["grade"], string> = {
-  A: "badge-emerald",
-  B: "badge-emerald",
-  C: "badge-amber",
-  D: "badge-amber",
-  F: "badge-rose",
-};
 
 export function Results({ data, result, onReset }: Props) {
   const reduced = useReducedMotion();
@@ -58,10 +48,10 @@ export function Results({ data, result, onReset }: Props) {
       initial={initial}
       animate={animate}
       transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-      className="mt-6 space-y-7 sm:space-y-8"
+      className="mt-6 space-y-10 sm:space-y-12"
     >
-      {/* Header card */}
-      <div className="card card-lift p-6 relative overflow-hidden result-header">
+      {/* ── Paper masthead ─────────────────────────────────────────── */}
+      <div className="card card-lift p-6 sm:p-8 relative overflow-hidden result-header">
         <div className="flex flex-wrap items-start gap-6">
           <div className="flex items-start gap-4 min-w-0 flex-1">
             <div className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-[color-mix(in_oklab,var(--violet)_14%,var(--surface))] text-[var(--violet)]">
@@ -71,10 +61,10 @@ export function Results({ data, result, onReset }: Props) {
               <div className="text-[0.65rem] tracking-[0.2em] uppercase text-[var(--text-muted)]">
                 Analysis ready
               </div>
-              <h3 className="headline-serif mt-1 text-2xl font-medium tracking-tight leading-tight">
+              <h3 className="headline-serif mt-1.5 text-[1.55rem] sm:text-[1.85rem] font-medium tracking-tight leading-[1.15]">
                 {result.paper.title || data.filename}
               </h3>
-              <div className="mt-1.5 flex flex-wrap gap-x-3 gap-y-1 text-xs text-[var(--text-muted)]">
+              <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-[var(--text-muted)]">
                 <span>{meta.authors}</span>
                 <span>·</span>
                 <span>{meta.year}</span>
@@ -90,8 +80,8 @@ export function Results({ data, result, onReset }: Props) {
               </div>
             </div>
           </div>
-          <div className="flex flex-wrap items-center gap-3 ml-auto">
-            <ScoreRing value={overall} size={92} stroke={9} label="OVERALL" />
+          <div className="flex items-center gap-4 ml-auto">
+            <ScoreRing value={overall} size={84} stroke={8} label="OVERALL" />
             <div className="flex flex-col gap-2">
               <button
                 onClick={() =>
@@ -107,16 +97,31 @@ export function Results({ data, result, onReset }: Props) {
               </button>
               <button onClick={onReset} className="btn-ghost text-sm">
                 <RotateCcw className="h-4 w-4" />
-                Analyze another paper
+                Analyze another
               </button>
             </div>
           </div>
         </div>
+
+        {/* Compact metric strip — replaces the old 5-card score grid */}
+        <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 text-[0.72rem] tracking-[0.04em] text-[var(--text-muted)] border-t border-[var(--border)] pt-4">
+          <MetricChip label="Clarity" value={result.scores.clarity} hue="violet" />
+          <MetricChip label="Novelty" value={result.scores.novelty} hue="fuchsia" />
+          <MetricChip label="Rigor" value={result.scores.rigor} hue="sky" />
+          <MetricChip label="Impact" value={result.scores.impact} hue="amber" />
+          <MetricChip
+            label="Originality"
+            value={originality}
+            hue="emerald"
+            suffix={`Grade ${result.plagiarismRisk.grade}`}
+          />
+        </div>
+
         {result.executiveSummary && (
           <div className="mt-5 rounded-xl bg-[var(--surface-soft)] border border-[var(--border)] p-4 sm:p-5">
             <div className="flex items-center gap-2 text-[0.65rem] tracking-[0.2em] uppercase text-[var(--violet)] font-semibold">
               <Sparkles className="h-3.5 w-3.5" />
-              Executive Summary
+              Executive summary
             </div>
             <p className="mt-2 text-[0.95rem] leading-relaxed text-[var(--text)]">
               {result.executiveSummary}
@@ -125,141 +130,41 @@ export function Results({ data, result, onReset }: Props) {
         )}
       </div>
 
-      {/* Score grid */}
-      <div className="grid gap-3 grid-cols-2 sm:grid-cols-3 lg:grid-cols-5">
-        {(
-          [
-            ["Clarity", result.scores.clarity, "violet"],
-            ["Novelty", result.scores.novelty, "fuchsia"],
-            ["Rigor", result.scores.rigor, "sky"],
-            ["Impact", result.scores.impact, "amber"],
-            ["Originality", originality, "emerald"],
-          ] as Array<[string, number, string]>
-        ).map(([label, value, hue], i) => (
-          <motion.div
-            key={label}
-            initial={reduced ? false : { opacity: 0, y: 10 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.4 }}
-            transition={{ duration: 0.45, delay: i * 0.05 }}
-            className={`score-card score-card--${hue} p-4`}
-          >
-            <div className="flex items-center justify-between">
-              <div className="text-[0.65rem] tracking-[0.18em] uppercase text-[var(--text-muted)] font-medium">
-                {label}
-              </div>
-              <span className={`badge badge-${hue}`}>{value}/100</span>
-            </div>
-            <div className="mt-3 h-2 rounded-full bg-[var(--border)] overflow-hidden">
-              <motion.div
-                initial={reduced ? false : { width: 0 }}
-                whileInView={{ width: `${value}%` }}
-                viewport={{ once: true, amount: 0.4 }}
-                transition={{
-                  duration: 0.9,
-                  delay: 0.15 + i * 0.05,
-                  ease: [0.22, 1, 0.36, 1],
-                }}
-                className={`score-bar score-bar--${hue} h-full rounded-full`}
-              />
-            </div>
-          </motion.div>
-        ))}
-      </div>
-
-      {/* Plagiarism risk panel */}
-      <div className="card card-lift p-6 result-verdict">
-        <div className="flex flex-wrap items-start gap-5">
-          <div className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-[color-mix(in_oklab,var(--emerald)_14%,var(--surface))] text-[var(--emerald)]">
-            <ShieldCheck className="h-5 w-5" />
-          </div>
-          <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-2">
-              <h4 className="font-semibold tracking-tight">Originality verdict</h4>
-              <span className={`badge ${gradeAccent[result.plagiarismRisk.grade]}`}>
-                Grade {result.plagiarismRisk.grade}
-              </span>
-            </div>
-            <p className="mt-1.5 text-sm text-[var(--text-soft)] leading-relaxed">
-              {result.plagiarismRisk.rationale ||
-                "No specific concerns detected in the rewritten content."}
-            </p>
-            {result.plagiarismRisk.suggestions.length > 0 && (
-              <ul className="mt-3 grid gap-1.5 sm:grid-cols-2 text-sm text-[var(--text-soft)]">
-                {result.plagiarismRisk.suggestions.map((s, i) => (
-                  <li key={i} className="flex gap-2">
-                    <Check className="h-4 w-4 mt-0.5 text-[var(--emerald)] shrink-0" />
-                    <span>{s}</span>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-          <div className="ml-auto">
-            <ScoreRing value={originality} size={108} stroke={9} label="ORIGINAL" />
-          </div>
-        </div>
-      </div>
-
-      {/* Deliverables strip — sir's three required outputs at a glance */}
-      <div className="grid gap-3 sm:grid-cols-3">
-        <DeliverableChip
-          numeral="I"
-          label="Section-wise summary"
-          hint="Abstract → Conclusion"
-          hue="violet"
-          count={`${result.sections.length} sections`}
-          icon={<ListOrdered className="h-4 w-4" />}
-        />
-        <DeliverableChip
-          numeral="II"
-          label="Plagiarism-free rewrite"
-          hint="In your own words"
-          hue="fuchsia"
-          count={`${result.sections.length} rewrites`}
-          icon={<PenLine className="h-4 w-4" />}
-        />
-        <DeliverableChip
-          numeral="III"
-          label="Smart citations"
-          hint="APA · MLA · BibTeX"
-          hue="sky"
-          count={`${result.citations.length} entries`}
-          icon={<Quote className="h-4 w-4" />}
-        />
-      </div>
-
       {/* ── Chapter I — Section-wise summary ───────────────────────── */}
-      <ChapterHeader
-        numeral="I"
-        eyebrow="Deliverable one"
-        title="Section-wise summary"
-        sub="Abstract → Conclusion · original gist + key points for each section, exactly as it appears in the paper."
-        hue="violet"
-      />
-      <div className="space-y-3">
-        {result.sections.map((s, i) => (
-          <SummaryItem key={`sum-${s.id || i}`} section={s} index={i} />
-        ))}
-      </div>
+      <section>
+        <ChapterHeader
+          numeral="I"
+          eyebrow="Deliverable one"
+          title="Section-wise summary"
+          sub="Abstract → Conclusion · original gist + key points for each section, exactly as it appears in the paper."
+          hue="violet"
+        />
+        <div className="mt-6 space-y-3">
+          {result.sections.map((s, i) => (
+            <SummaryItem key={`sum-${s.id || i}`} section={s} index={i} />
+          ))}
+        </div>
+      </section>
 
       {/* ── Chapter II — Plagiarism-free rewriting ─────────────────── */}
-      <ChapterHeader
-        numeral="II"
-        eyebrow="Deliverable two"
-        title="Plagiarism-free rewriting"
-        sub="Each section paraphrased in your own words, ready to paste into your assignment without copying."
-        hue="fuchsia"
-      />
-      <div className="space-y-3">
-        {result.sections.map((s, i) => (
-          <RewriteItem key={`rw-${s.id || i}`} section={s} index={i} />
-        ))}
-      </div>
+      <section>
+        <ChapterHeader
+          numeral="II"
+          eyebrow="Deliverable two"
+          title="Plagiarism-free rewriting"
+          sub="Each section paraphrased in your own words, ready to paste into your assignment without copying."
+          hue="fuchsia"
+        />
+        <div className="mt-6 space-y-3">
+          {result.sections.map((s, i) => (
+            <RewriteItem key={`rw-${s.id || i}`} section={s} index={i} />
+          ))}
+        </div>
+      </section>
 
       {/* ── Chapter III — Smart citations ──────────────────────────── */}
       {result.citations.length > 0 && (
-        <>
+        <section>
           <ChapterHeader
             numeral="III"
             eyebrow="Deliverable three"
@@ -267,12 +172,12 @@ export function Results({ data, result, onReset }: Props) {
             sub="Every reference detected in the paper, formatted in APA, MLA, and BibTeX — copy-and-paste ready."
             hue="sky"
           />
-          <div className="grid gap-3">
+          <div className="mt-6 grid gap-3">
             {result.citations.map((c, i) => (
               <CitationItem key={c.id || i} citation={c} index={i} />
             ))}
           </div>
-        </>
+        </section>
       )}
     </motion.div>
   );
@@ -292,7 +197,7 @@ function ChapterHeader({
   hue: "violet" | "fuchsia" | "sky";
 }) {
   return (
-    <div className={`chapter-head chapter-head--${hue} mt-10`}>
+    <div className={`chapter-head chapter-head--${hue}`}>
       <div className="ornament">
         <span className="ornament__diamond" />
       </div>
@@ -316,39 +221,33 @@ function ChapterHeader({
   );
 }
 
-function DeliverableChip({
-  numeral,
+function MetricChip({
   label,
-  hint,
+  value,
   hue,
-  count,
-  icon,
+  suffix,
 }: {
-  numeral: string;
   label: string;
-  hint: string;
-  hue: "violet" | "fuchsia" | "sky";
-  count: string;
-  icon: React.ReactNode;
+  value: number;
+  hue: "violet" | "fuchsia" | "sky" | "amber" | "emerald";
+  suffix?: string;
 }) {
   return (
-    <div className={`deliverable-chip deliverable-chip--${hue}`}>
-      <div className="flex items-center gap-3">
-        <span className={`chip-numeral chip-numeral--${hue}`}>{numeral}</span>
-        <div className="min-w-0">
-          <div className="font-semibold tracking-tight text-[var(--ink)]">
-            {label}
-          </div>
-          <div className="text-[0.7rem] text-[var(--text-muted)] mt-0.5">
-            {hint}
-          </div>
-        </div>
-        <span className={`ml-auto badge badge-${hue}`}>{count}</span>
-      </div>
-      <div className="mt-3 flex items-center gap-2 text-[0.7rem] text-[var(--text-muted)]">
-        <Check className="h-3.5 w-3.5 text-[var(--emerald)]" />
-        Included · {icon ? <span className="ml-1">{icon}</span> : null}
-      </div>
+    <div className="inline-flex items-baseline gap-2">
+      <span
+        className={`inline-block h-1.5 w-1.5 rounded-full bg-[var(--${hue})] shrink-0`}
+        aria-hidden
+      />
+      <span className="uppercase tracking-[0.18em] text-[0.62rem] font-semibold text-[var(--text-muted)]">
+        {label}
+      </span>
+      <span className="text-sm font-semibold tracking-tight text-[var(--ink)] tabular-nums">
+        {value}
+        <span className="text-[var(--text-muted)] font-normal">/100</span>
+      </span>
+      {suffix && (
+        <span className={`badge badge-${hue} ml-0.5`}>{suffix}</span>
+      )}
     </div>
   );
 }
