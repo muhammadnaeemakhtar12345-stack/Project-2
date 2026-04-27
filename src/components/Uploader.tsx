@@ -28,7 +28,15 @@ type Stage =
   | { kind: "extracted"; data: ExtractedPdf }
   | { kind: "analyzing"; data: ExtractedPdf }
   | { kind: "done"; data: ExtractedPdf; result: AnalysisResult }
-  | { kind: "error"; message: string; data?: ExtractedPdf };
+  | {
+      kind: "error";
+      message: string;
+      data?: ExtractedPdf;
+      detail?: string;
+      provider?: string;
+      status?: number;
+      retryAt?: number; // epoch ms when the rate-limit window should be clear
+    };
 
 const PROVIDER_STORAGE = "quilix.provider.v1";
 const MODEL_STORAGE = "quilix.model.v1";
@@ -163,12 +171,21 @@ export function Uploader() {
         result?: AnalysisResult;
         error?: string;
         detail?: string;
+        provider?: string;
+        retryAfterMs?: number;
       };
       if (!res.ok) {
         setStage({
           kind: "error",
           data,
           message: payload.error ?? "Analysis failed. Please try again.",
+          detail: payload.detail,
+          provider: payload.provider,
+          status: res.status,
+          retryAt:
+            res.status === 429
+              ? Date.now() + (payload.retryAfterMs ?? 60_000)
+              : undefined,
         });
         return;
       }
@@ -373,13 +390,21 @@ export function Uploader() {
             }}
           />
           {stage.kind === "error" && (
-            <div className="mt-6 mx-auto max-w-lg flex items-start gap-3 text-left rounded-xl border border-[var(--rose)]/40 bg-[color-mix(in_oklab,var(--rose)_8%,var(--surface))] px-4 py-3">
-              <AlertCircle className="h-4.5 w-4.5 text-[var(--rose)] mt-0.5 shrink-0" />
-              <div className="text-sm text-[var(--text)]">
-                <div className="font-medium">Something went wrong</div>
-                <div className="text-[var(--text-soft)]">{stage.message}</div>
-              </div>
-            </div>
+            <ErrorCard
+              message={stage.message}
+              detail={stage.detail}
+              provider={stage.provider}
+              status={stage.status}
+              retryAt={stage.retryAt}
+              currentProvider={providerId}
+              onSwitchProvider={(id) => {
+                const next = PROVIDERS[id];
+                setProviderId(id);
+                setModel(next.defaultModel);
+                setApiKey("");
+              }}
+              onRetry={() => stage.data && runAnalysis(stage.data)}
+            />
           )}
         </motion.div>
       ) : null}
@@ -536,5 +561,113 @@ function ExtractedCard({
         </div>
       </div>
     </motion.div>
+  );
+}
+
+function ErrorCard({
+  message,
+  detail,
+  provider,
+  status,
+  retryAt,
+  currentProvider,
+  onSwitchProvider,
+  onRetry,
+}: {
+  message: string;
+  detail?: string;
+  provider?: string;
+  status?: number;
+  retryAt?: number;
+  currentProvider: ProviderId;
+  onSwitchProvider: (id: ProviderId) => void;
+  onRetry: () => void;
+}) {
+  const isRateLimit = status === 429 || /rate limit/i.test(message);
+  const [now, setNow] = useState(0);
+  useEffect(() => {
+    if (!retryAt) return;
+    setNow(Date.now());
+    const t = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(t);
+  }, [retryAt]);
+  const secondsLeft = retryAt ? Math.max(0, Math.ceil((retryAt - now) / 1000)) : 0;
+  const ready = !retryAt || secondsLeft === 0;
+
+  // Suggest the most generous free tier the user is NOT already on.
+  const suggestion: { id: ProviderId; label: string; why: string } | null =
+    isRateLimit && currentProvider !== "gemini"
+      ? {
+          id: "gemini",
+          label: "Gemini 2.0 Flash",
+          why: "1 M tokens/min free · 15 req/min · most generous tier.",
+        }
+      : isRateLimit && currentProvider === "gemini"
+      ? {
+          id: "openrouter",
+          label: "OpenRouter free pool",
+          why: "Llama 3.3 70B & DeepSeek free models routed through one key.",
+        }
+      : null;
+
+  return (
+    <div className="mt-6 mx-auto max-w-2xl text-left rounded-2xl border border-[var(--rose)]/40 bg-[color-mix(in_oklab,var(--rose)_6%,var(--surface))] px-5 py-4">
+      <div className="flex items-start gap-3">
+        <AlertCircle className="h-5 w-5 text-[var(--rose)] mt-0.5 shrink-0" />
+        <div className="flex-1 min-w-0">
+          <div className="font-semibold tracking-tight text-[var(--ink)]">
+            {isRateLimit ? "Rate limit reached" : "Something went wrong"}
+          </div>
+          <div className="mt-1 text-sm text-[var(--text-soft)] leading-relaxed">
+            {message}
+          </div>
+          {provider && (
+            <div className="mt-2 text-[0.7rem] tracking-[0.18em] uppercase text-[var(--text-muted)]">
+              Reported by {provider}
+              {status ? ` · HTTP ${status}` : ""}
+            </div>
+          )}
+          {detail && (
+            <details className="mt-2 text-xs text-[var(--text-muted)]">
+              <summary className="cursor-pointer select-none">
+                Provider response
+              </summary>
+              <div className="mt-1.5 rounded-md bg-[var(--surface-soft)] border border-[var(--border)] px-2.5 py-1.5 font-mono whitespace-pre-wrap break-words">
+                {detail}
+              </div>
+            </details>
+          )}
+          {retryAt && !ready && (
+            <div className="mt-3 text-xs text-[var(--text-muted)]">
+              Window resets in <strong className="text-[var(--text-soft)]">{secondsLeft}s</strong>. You can retry now or wait for the counter.
+            </div>
+          )}
+          <div className="mt-3 flex flex-wrap items-center gap-2">
+            <button
+              onClick={onRetry}
+              disabled={false}
+              className="btn-primary text-sm"
+            >
+              <RotateCcw className="h-3.5 w-3.5" />
+              Retry now
+            </button>
+            {suggestion && (
+              <button
+                onClick={() => onSwitchProvider(suggestion.id)}
+                className="btn-ghost text-sm"
+                title={suggestion.why}
+              >
+                Switch to {suggestion.label}
+              </button>
+            )}
+          </div>
+          {suggestion && (
+            <div className="mt-2 text-[0.7rem] text-[var(--text-muted)]">
+              Tip · {suggestion.why}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
   );
 }
