@@ -8,6 +8,8 @@ import {
   Copy,
   Download,
   FileText,
+  ListOrdered,
+  PenLine,
   Quote,
   RotateCcw,
   ShieldCheck,
@@ -199,44 +201,159 @@ export function Results({ data, result, onReset }: Props) {
         </div>
       </div>
 
-      {/* Sections */}
+      {/* Deliverables strip — sir's three required outputs at a glance */}
+      <div className="grid gap-3 sm:grid-cols-3">
+        <DeliverableChip
+          numeral="I"
+          label="Section-wise summary"
+          hint="Abstract → Conclusion"
+          hue="violet"
+          count={`${result.sections.length} sections`}
+          icon={<ListOrdered className="h-4 w-4" />}
+        />
+        <DeliverableChip
+          numeral="II"
+          label="Plagiarism-free rewrite"
+          hint="In your own words"
+          hue="fuchsia"
+          count={`${result.sections.length} rewrites`}
+          icon={<PenLine className="h-4 w-4" />}
+        />
+        <DeliverableChip
+          numeral="III"
+          label="Smart citations"
+          hint="APA · MLA · BibTeX"
+          hue="sky"
+          count={`${result.citations.length} entries`}
+          icon={<Quote className="h-4 w-4" />}
+        />
+      </div>
+
+      {/* ── Chapter I — Section-wise summary ───────────────────────── */}
+      <ChapterHeader
+        numeral="I"
+        eyebrow="Deliverable one"
+        title="Section-wise summary"
+        sub="Abstract → Conclusion · original gist + key points for each section, exactly as it appears in the paper."
+        hue="violet"
+      />
       <div className="space-y-3">
-        <div className="flex items-center justify-between mb-1">
-          <h4 className="font-semibold tracking-tight section-rail text-lg">
-            Section-by-section synthesis
-          </h4>
-          <span className="text-xs text-[var(--text-muted)]">
-            {result.sections.length} sections
-          </span>
-        </div>
         {result.sections.map((s, i) => (
-          <SectionItem key={s.id || i} section={s} index={i} />
+          <SummaryItem key={`sum-${s.id || i}`} section={s} index={i} />
         ))}
       </div>
 
-      {/* Citations */}
+      {/* ── Chapter II — Plagiarism-free rewriting ─────────────────── */}
+      <ChapterHeader
+        numeral="II"
+        eyebrow="Deliverable two"
+        title="Plagiarism-free rewriting"
+        sub="Each section paraphrased in your own words, ready to paste into your assignment without copying."
+        hue="fuchsia"
+      />
+      <div className="space-y-3">
+        {result.sections.map((s, i) => (
+          <RewriteItem key={`rw-${s.id || i}`} section={s} index={i} />
+        ))}
+      </div>
+
+      {/* ── Chapter III — Smart citations ──────────────────────────── */}
       {result.citations.length > 0 && (
-        <div>
-          <div className="flex items-center justify-between mb-3">
-            <h4 className="font-semibold tracking-tight section-rail text-lg">
-              Smart citations
-            </h4>
-            <span className="text-xs text-[var(--text-muted)]">
-              {result.citations.length} entries · APA · MLA · BibTeX
-            </span>
-          </div>
+        <>
+          <ChapterHeader
+            numeral="III"
+            eyebrow="Deliverable three"
+            title="Smart citations"
+            sub="Every reference detected in the paper, formatted in APA, MLA, and BibTeX — copy-and-paste ready."
+            hue="sky"
+          />
           <div className="grid gap-3">
             {result.citations.map((c, i) => (
               <CitationItem key={c.id || i} citation={c} index={i} />
             ))}
           </div>
-        </div>
+        </>
       )}
     </motion.div>
   );
 }
 
-function SectionItem({
+function ChapterHeader({
+  numeral,
+  eyebrow,
+  title,
+  sub,
+  hue,
+}: {
+  numeral: string;
+  eyebrow: string;
+  title: string;
+  sub: string;
+  hue: "violet" | "fuchsia" | "sky";
+}) {
+  return (
+    <div className={`chapter-head chapter-head--${hue} mt-10`}>
+      <div className="ornament">
+        <span className="ornament__diamond" />
+      </div>
+      <div className="mt-6 flex flex-wrap items-end gap-x-6 gap-y-2">
+        <div className={`chapter-numeral chapter-numeral--${hue}`}>{numeral}</div>
+        <div className="min-w-0 flex-1">
+          <div
+            className={`text-[0.62rem] tracking-[0.22em] uppercase font-semibold chapter-eyebrow--${hue}`}
+          >
+            {eyebrow}
+          </div>
+          <h3 className="headline-serif mt-1.5 text-[1.7rem] leading-[1.1] tracking-tight text-[var(--ink)]">
+            {title}
+          </h3>
+          <p className="mt-2 text-sm text-[var(--text-soft)] leading-relaxed max-w-2xl">
+            {sub}
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function DeliverableChip({
+  numeral,
+  label,
+  hint,
+  hue,
+  count,
+  icon,
+}: {
+  numeral: string;
+  label: string;
+  hint: string;
+  hue: "violet" | "fuchsia" | "sky";
+  count: string;
+  icon: React.ReactNode;
+}) {
+  return (
+    <div className={`deliverable-chip deliverable-chip--${hue}`}>
+      <div className="flex items-center gap-3">
+        <span className={`chip-numeral chip-numeral--${hue}`}>{numeral}</span>
+        <div className="min-w-0">
+          <div className="font-semibold tracking-tight text-[var(--ink)]">
+            {label}
+          </div>
+          <div className="text-[0.7rem] text-[var(--text-muted)] mt-0.5">
+            {hint}
+          </div>
+        </div>
+        <span className={`ml-auto badge badge-${hue}`}>{count}</span>
+      </div>
+      <div className="mt-3 flex items-center gap-2 text-[0.7rem] text-[var(--text-muted)]">
+        <Check className="h-3.5 w-3.5 text-[var(--emerald)]" />
+        Included · {icon ? <span className="ml-1">{icon}</span> : null}
+      </div>
+    </div>
+  );
+}
+
+function SummaryItem({
   section,
   index,
 }: {
@@ -245,17 +362,6 @@ function SectionItem({
 }) {
   const reduced = useReducedMotion();
   const [open, setOpen] = useState(index < 2);
-  const [copied, setCopied] = useState(false);
-
-  async function copyRewrite() {
-    try {
-      await navigator.clipboard.writeText(section.rewrite);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 1400);
-    } catch {
-      /* ignore */
-    }
-  }
 
   return (
     <motion.div
@@ -269,7 +375,7 @@ function SectionItem({
         onClick={() => setOpen((o) => !o)}
         className="w-full flex items-center gap-4 px-5 py-4 text-left"
       >
-        <span className="grid h-9 w-9 place-items-center rounded-lg bg-[color-mix(in_oklab,var(--violet)_12%,var(--surface))] text-[var(--violet)] text-xs font-semibold">
+        <span className="chapter-pill chapter-pill--violet text-xs font-semibold">
           {String(index + 1).padStart(2, "0")}
         </span>
         <div className="flex-1 min-w-0">
@@ -288,16 +394,19 @@ function SectionItem({
         />
       </button>
       {open && (
-        <div className="px-5 pb-5 pt-1 grid gap-4 lg:grid-cols-2">
-          <div>
-            <div className="text-[0.65rem] tracking-[0.18em] uppercase text-[var(--text-muted)] mb-1.5">
-              Original gist
-            </div>
-            <p className="text-sm leading-relaxed text-[var(--text-soft)]">
-              {section.originalGist}
-            </p>
-            {section.keyPoints.length > 0 && (
-              <ul className="mt-3 space-y-1.5">
+        <div className="px-5 pb-5 pt-1">
+          <div className="text-[0.65rem] tracking-[0.18em] uppercase text-[var(--text-muted)] mb-1.5">
+            Original gist
+          </div>
+          <p className="text-sm leading-relaxed text-[var(--text-soft)]">
+            {section.originalGist}
+          </p>
+          {section.keyPoints.length > 0 && (
+            <>
+              <div className="mt-4 text-[0.65rem] tracking-[0.18em] uppercase text-[var(--text-muted)] mb-1.5">
+                Key points
+              </div>
+              <ul className="space-y-1.5">
                 {section.keyPoints.map((k, i) => (
                   <li key={i} className="flex gap-2 text-sm">
                     <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-[var(--violet)] shrink-0" />
@@ -305,37 +414,74 @@ function SectionItem({
                   </li>
                 ))}
               </ul>
-            )}
-          </div>
-          <div>
-            <div className="flex items-center justify-between mb-1.5">
-              <div className="text-[0.65rem] tracking-[0.18em] uppercase text-[var(--violet)]">
-                Plagiarism-free rewrite
-              </div>
-              <button
-                onClick={copyRewrite}
-                className="btn-ghost text-xs h-8 px-2.5"
-                aria-label="Copy rewrite"
-              >
-                {copied ? (
-                  <>
-                    <Check className="h-3.5 w-3.5" />
-                    Copied
-                  </>
-                ) : (
-                  <>
-                    <Copy className="h-3.5 w-3.5" />
-                    Copy
-                  </>
-                )}
-              </button>
-            </div>
-            <div className="quote-slab">
-              {section.rewrite || "—"}
-            </div>
-          </div>
+            </>
+          )}
         </div>
       )}
+    </motion.div>
+  );
+}
+
+function RewriteItem({
+  section,
+  index,
+}: {
+  section: AnalysisResult["sections"][number];
+  index: number;
+}) {
+  const reduced = useReducedMotion();
+  const [copied, setCopied] = useState(false);
+
+  async function copyRewrite() {
+    try {
+      await navigator.clipboard.writeText(section.rewrite);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1400);
+    } catch {
+      /* ignore */
+    }
+  }
+
+  return (
+    <motion.div
+      initial={reduced ? false : { opacity: 0, y: 10 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.15 }}
+      transition={{ duration: 0.4, delay: index * 0.03 }}
+      className="card card-lift p-5"
+    >
+      <div className="flex items-start gap-4">
+        <span className="chapter-pill chapter-pill--fuchsia text-xs font-semibold">
+          {String(index + 1).padStart(2, "0")}
+        </span>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 flex-wrap">
+            <PenLine className="h-3.5 w-3.5 text-[var(--fuchsia)]" />
+            <div className="font-semibold tracking-tight">{section.name}</div>
+            <span className="badge badge-fuchsia ml-1">paraphrased</span>
+          </div>
+        </div>
+        <button
+          onClick={copyRewrite}
+          className="btn-ghost text-xs h-8 px-2.5 shrink-0"
+          aria-label="Copy rewrite"
+        >
+          {copied ? (
+            <>
+              <Check className="h-3.5 w-3.5" />
+              Copied
+            </>
+          ) : (
+            <>
+              <Copy className="h-3.5 w-3.5" />
+              Copy rewrite
+            </>
+          )}
+        </button>
+      </div>
+      <div className="quote-slab mt-4 quote-slab--fuchsia">
+        {section.rewrite || "—"}
+      </div>
     </motion.div>
   );
 }
