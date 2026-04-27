@@ -397,6 +397,7 @@ export function Uploader() {
               status={stage.status}
               retryAt={stage.retryAt}
               currentProvider={providerId}
+              canRetry={Boolean(stage.data)}
               onSwitchProvider={(id) => {
                 const next = PROVIDERS[id];
                 setProviderId(id);
@@ -404,6 +405,7 @@ export function Uploader() {
                 setApiKey("");
               }}
               onRetry={() => stage.data && runAnalysis(stage.data)}
+              onPickAnother={() => fileRef.current?.click()}
             />
           )}
         </motion.div>
@@ -571,8 +573,10 @@ function ErrorCard({
   status,
   retryAt,
   currentProvider,
+  canRetry,
   onSwitchProvider,
   onRetry,
+  onPickAnother,
 }: {
   message: string;
   detail?: string;
@@ -580,14 +584,18 @@ function ErrorCard({
   status?: number;
   retryAt?: number;
   currentProvider: ProviderId;
+  canRetry: boolean;
   onSwitchProvider: (id: ProviderId) => void;
   onRetry: () => void;
+  onPickAnother: () => void;
 }) {
   const isRateLimit = status === 429 || /rate limit/i.test(message);
-  const [now, setNow] = useState(0);
+  // Lazy initializer keeps state impurity inside the React-permitted slot
+  // and avoids the one-frame "resets in 1.7 billion seconds" flash that a
+  // plain `useState(0)` would cause when retryAt is already set.
+  const [now, setNow] = useState(() => Date.now());
   useEffect(() => {
     if (!retryAt) return;
-    setNow(Date.now());
     const t = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(t);
   }, [retryAt]);
@@ -643,15 +651,18 @@ function ErrorCard({
             </div>
           )}
           <div className="mt-3 flex flex-wrap items-center gap-2">
-            <button
-              onClick={onRetry}
-              disabled={false}
-              className="btn-primary text-sm"
-            >
-              <RotateCcw className="h-3.5 w-3.5" />
-              Retry now
-            </button>
-            {suggestion && (
+            {canRetry ? (
+              <button onClick={onRetry} className="btn-primary text-sm">
+                <RotateCcw className="h-3.5 w-3.5" />
+                Retry now
+              </button>
+            ) : (
+              <button onClick={onPickAnother} className="btn-primary text-sm">
+                <Upload className="h-3.5 w-3.5" />
+                Choose another PDF
+              </button>
+            )}
+            {suggestion && canRetry && (
               <button
                 onClick={() => onSwitchProvider(suggestion.id)}
                 className="btn-ghost text-sm"
