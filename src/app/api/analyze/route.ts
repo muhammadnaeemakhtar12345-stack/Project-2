@@ -8,7 +8,11 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 const TEMPERATURE = 0.25;
-const MAX_TOKENS = 4096;
+const MAX_TOKENS = 2400;
+// Cap input chars so a single request stays under provider per-minute token
+// limits on free tiers (e.g. Groq 8B free tier is 6000 TPM). ~3.6 chars per
+// token gives ~3300 input tokens + 2400 output + ~300 system = ~6000.
+const MAX_TEXT_CHARS = 12000;
 
 export async function POST(req: NextRequest) {
   let body: AnalyzeRequestBody;
@@ -18,7 +22,11 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid JSON body." }, { status: 400 });
   }
 
-  const text = (body?.text ?? "").trim();
+  const rawText = (body?.text ?? "").trim();
+  const text =
+    rawText.length > MAX_TEXT_CHARS
+      ? smartSample(rawText, MAX_TEXT_CHARS)
+      : rawText;
   const filename = (body?.filename ?? "document.pdf").trim();
   const voice = body?.voice ?? "academic";
 
@@ -200,6 +208,17 @@ async function callAnthropic(
       messages: [{ role: "user", content: userPrompt(text, voice) }],
     }),
   });
+}
+
+function smartSample(text: string, max: number): string {
+  if (text.length <= max) return text;
+  // Take 60% from the start (abstract / intro / methods) and 40% from the end
+  // (results / conclusion / references) to preserve scholarly structure.
+  const headLen = Math.floor(max * 0.6);
+  const tailLen = max - headLen - 32;
+  const head = text.slice(0, headLen);
+  const tail = text.slice(text.length - tailLen);
+  return `${head}\n\n[…content trimmed…]\n\n${tail}`;
 }
 
 async function readUpstreamContent(
