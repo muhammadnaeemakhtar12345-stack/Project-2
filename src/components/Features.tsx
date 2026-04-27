@@ -1,45 +1,88 @@
 "use client";
 
 import { motion, useReducedMotion } from "framer-motion";
+import {
+  Brain,
+  Layers,
+  ShieldCheck,
+  Quote,
+  Sparkles,
+  FileText,
+} from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 
 interface Feature {
-  num: string;
+  icon: LucideIcon;
   title: string;
   body: string;
+  accent: "violet" | "fuchsia" | "sky" | "emerald" | "amber" | "rose";
 }
 
 const items: Feature[] = [
   {
-    num: "I",
+    icon: Brain,
     title: "Reads like a senior reviewer",
-    body: "Quilix scores clarity, novelty, rigor and impact — and explains its reasoning. Not a one-paragraph summary; a structured editorial pass.",
+    body: "Scores clarity, novelty, rigor and impact — and explains each judgement, not just a one-paragraph summary.",
+    accent: "violet",
   },
   {
-    num: "II",
+    icon: Layers,
     title: "Section-by-section synthesis",
-    body: "Abstract through Conclusion, each rewritten in three to six sentences with bulletable key points and an original-gist line.",
+    body: "Abstract through Conclusion — each rewritten in 3-6 sentences with bullet-ready key points.",
+    accent: "sky",
   },
   {
-    num: "III",
+    icon: ShieldCheck,
     title: "Plagiarism-safe rewriting",
-    body: "Every paragraph is rephrased structurally — no shared six-word spans with the source — and graded against an originality rubric.",
+    body: "Every paragraph is rephrased structurally — no shared six-word spans with the source paper.",
+    accent: "emerald",
   },
   {
-    num: "IV",
-    title: "Citations, three editions",
-    body: "Detected references are reformatted into APA, MLA and BibTeX. Copy them inline, or pull the BibTeX block into your manuscript.",
+    icon: Quote,
+    title: "Citations done for you",
+    body: "Detected references are reformatted into APA, MLA and BibTeX, ready to paste into your work.",
+    accent: "fuchsia",
   },
   {
-    num: "V",
+    icon: Sparkles,
     title: "Originality scoring",
-    body: "A grade letter plus a 0–100 score on how independent your rewrite reads — alongside concrete suggestions to lift it further.",
+    body: "A grade letter and 0-100 score on how independent your rewrite is from the source phrasing.",
+    accent: "amber",
   },
   {
-    num: "VI",
-    title: "A branded edition",
-    body: "Download a multi-page PDF with cover, score ring, executive summary, quote slabs and footnotes. Portfolio-grade, never markdown.",
+    icon: FileText,
+    title: "Branded PDF deliverable",
+    body: "Multi-page report with cover, score ring, executive summary and quote slabs — portfolio-grade output.",
+    accent: "rose",
   },
 ];
+
+const accentMap: Record<string, { fg: string; bg: string }> = {
+  violet: {
+    fg: "var(--violet)",
+    bg: "color-mix(in oklab, var(--violet) 12%, var(--surface))",
+  },
+  fuchsia: {
+    fg: "var(--fuchsia)",
+    bg: "color-mix(in oklab, var(--fuchsia) 12%, var(--surface))",
+  },
+  sky: {
+    fg: "var(--sky)",
+    bg: "color-mix(in oklab, var(--sky) 12%, var(--surface))",
+  },
+  emerald: {
+    fg: "var(--emerald)",
+    bg: "color-mix(in oklab, var(--emerald) 14%, var(--surface))",
+  },
+  amber: {
+    fg: "var(--amber)",
+    bg: "color-mix(in oklab, var(--amber) 14%, var(--surface))",
+  },
+  rose: {
+    fg: "var(--rose)",
+    bg: "color-mix(in oklab, var(--rose) 14%, var(--surface))",
+  },
+};
 
 export function Features() {
   const reduced = useReducedMotion();
@@ -52,61 +95,55 @@ export function Features() {
         <span className="ornament__diamond" />
       </div>
 
-      <div className="grid lg:grid-cols-12 gap-10">
-        {/* Left rail — heading + pull quote */}
-        <div className="lg:col-span-5 lg:sticky lg:top-28 self-start">
-          <div className="cap-pill">The edition</div>
-          <h2 className="headline-serif mt-6 text-[clamp(2rem,4.4vw,3.2rem)] leading-[1.04] text-[var(--ink)]">
-            Built like a research <em>deliverable</em>, not a chat reply.
-          </h2>
-          <p className="mt-5 text-[var(--text-soft)] leading-[1.7]">
-            Six features that turn a thirty-page PDF into a study-ready brief —
-            without burying the citations or clipping the structure.
-          </p>
+      <div className="mx-auto max-w-2xl text-center">
+        <div className="cap-pill justify-center">What you get</div>
+        <h2 className="headline-serif mt-6 text-[clamp(2rem,4.4vw,3.2rem)] leading-[1.04] text-[var(--ink)]">
+          A research <em>deliverable</em>, not a chat reply.
+        </h2>
+        <p className="mt-5 text-[var(--text-soft)] leading-[1.7]">
+          Six features that turn a thirty-page PDF into a study-ready brief —
+          without burying citations or clipping structure.
+        </p>
+      </div>
 
-          <figure
-            className="mt-9 pl-5 border-l-2"
-            style={{ borderColor: "var(--violet)" }}
-          >
-            <blockquote className="font-serif italic text-[1.18rem] leading-[1.45] text-[var(--ink)]">
-              &ldquo;A calm reading layer over the whole literature — citations,
-              voice, and originality, set with care.&rdquo;
-            </blockquote>
-            <figcaption className="mt-3 text-[11px] tracking-[0.22em] uppercase text-[var(--text-muted)]">
-              Quilix &middot; Editorial principle
-            </figcaption>
-          </figure>
-        </div>
-
-        {/* Right column — editorial entries */}
-        <ol className="lg:col-span-7 space-y-0">
-          {items.map((it, i) => (
-            <motion.li
+      <div className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        {items.map((it, i) => {
+          const a = accentMap[it.accent];
+          return (
+            <motion.div
               key={it.title}
-              initial={reduced ? false : { opacity: 0, y: 16 }}
+              initial={reduced ? false : { opacity: 0, y: 18 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.3 }}
+              viewport={{ once: true, amount: 0.25 }}
               transition={{
-                duration: 0.5,
-                delay: i * 0.05,
+                duration: 0.55,
+                delay: i * 0.06,
                 ease: [0.22, 1, 0.36, 1],
               }}
-              className="group grid grid-cols-[3.4rem_1fr] gap-x-6 py-7 border-t border-[var(--rule)] first:border-t-0"
+              className="feature-card group relative"
+              style={
+                {
+                  "--accent": a.fg,
+                } as React.CSSProperties
+              }
             >
-              <div className="folio text-[1.35rem] sm:text-[1.55rem] pt-0.5 transition-colors duration-300 group-hover:text-[var(--violet)]">
-                {it.num}
-              </div>
-              <div>
-                <h3 className="headline-serif text-[1.4rem] sm:text-[1.55rem] leading-[1.18] text-[var(--ink)]">
+              <div className="feature-card__inner">
+                <span
+                  className="feature-card__icon"
+                  style={{ background: a.bg, color: a.fg }}
+                >
+                  <it.icon className="h-[22px] w-[22px]" />
+                </span>
+                <h3 className="mt-5 headline-serif text-[1.36rem] leading-[1.2] text-[var(--ink)]">
                   {it.title}
                 </h3>
-                <p className="mt-2 text-[var(--text-soft)] leading-[1.7] max-w-2xl">
+                <p className="mt-2.5 text-[14.5px] text-[var(--text-soft)] leading-[1.65]">
                   {it.body}
                 </p>
               </div>
-            </motion.li>
-          ))}
-        </ol>
+            </motion.div>
+          );
+        })}
       </div>
     </section>
   );

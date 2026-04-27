@@ -152,6 +152,100 @@ body {
     0 24px 48px -16px rgba(124, 58, 237, 0.28);
 }
 
+/* ---------- Step + Feature premium cards (gradient ring on hover) ---------- */
+.step-card,
+.feature-card {
+  position: relative;
+  border-radius: 18px;
+  padding: 1px;
+  background: linear-gradient(
+    180deg,
+    color-mix(in oklab, var(--accent, var(--violet)) 18%, transparent) 0%,
+    transparent 60%
+  );
+  transition:
+    transform 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
+  overflow: hidden;
+}
+.step-card::before,
+.feature-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(
+    160deg,
+    color-mix(in oklab, var(--accent, var(--violet)) 0%, transparent),
+    color-mix(in oklab, var(--accent, var(--violet)) 0%, transparent)
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
+  pointer-events: none;
+  transition: background 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.step-card:hover::before,
+.feature-card:hover::before {
+  background: linear-gradient(
+    160deg,
+    color-mix(in oklab, var(--accent, var(--violet)) 75%, transparent) 0%,
+    color-mix(in oklab, var(--accent, var(--violet)) 30%, transparent) 50%,
+    color-mix(in oklab, var(--accent, var(--violet)) 5%, transparent) 100%
+  );
+}
+.step-card__inner,
+.feature-card__inner {
+  position: relative;
+  background: var(--surface);
+  border: 1px solid color-mix(in oklab, var(--ink) 8%, var(--border));
+  border-radius: 17px;
+  padding: 1.5rem 1.4rem 1.6rem;
+  height: 100%;
+  box-shadow:
+    0 1px 0 color-mix(in oklab, var(--ink) 4%, transparent),
+    0 8px 24px -16px color-mix(in oklab, var(--ink) 25%, transparent);
+  transition:
+    background 0.45s ease,
+    border-color 0.45s ease,
+    box-shadow 0.45s ease;
+}
+.step-card:hover,
+.feature-card:hover {
+  transform: translateY(-6px);
+  box-shadow:
+    0 1px 2px rgba(17, 11, 44, 0.04),
+    0 24px 60px -22px color-mix(in oklab, var(--accent, var(--violet)) 45%, transparent);
+}
+.step-card:hover .step-card__inner,
+.feature-card:hover .feature-card__inner {
+  border-color: transparent;
+  background: color-mix(in oklab, var(--accent, var(--violet)) 4%, var(--surface));
+}
+
+/* Icon tile inside cards */
+.step-card__icon,
+.feature-card__icon {
+  display: inline-grid;
+  place-items: center;
+  height: 44px;
+  width: 44px;
+  border-radius: 12px;
+  border: 1px solid color-mix(in oklab, var(--accent, var(--violet)) 22%, transparent);
+  transition:
+    transform 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.45s ease;
+}
+.step-card:hover .step-card__icon,
+.feature-card:hover .feature-card__icon {
+  transform: scale(1.06) rotate(-2deg);
+  box-shadow: 0 8px 24px -8px color-mix(in oklab, var(--accent, var(--violet)) 50%, transparent);
+}
+
 /* ---------- Primary CTA — refined ink-on-paper ---------- */
 .btn-primary {
   position: relative;
