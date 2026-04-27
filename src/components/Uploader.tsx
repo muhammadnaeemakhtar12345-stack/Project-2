@@ -3,6 +3,7 @@
 import {
   AlertCircle,
   CheckCircle2,
+  ClipboardPaste,
   Cpu,
   FileText,
   Hourglass,
@@ -48,6 +49,8 @@ export function Uploader() {
   const fileRef = useRef<HTMLInputElement | null>(null);
   const [drag, setDrag] = useState(false);
   const [stage, setStage] = useState<Stage>({ kind: "idle" });
+  const [inputMode, setInputMode] = useState<"pdf" | "text">("pdf");
+  const [pastedText, setPastedText] = useState("");
   const { isLoaded: authLoaded, isSignedIn } = useAuth();
 
   const [providerId, setProviderId] = useState<ProviderId>("groq");
@@ -144,6 +147,26 @@ export function Uploader() {
             : "Could not parse this PDF.",
       });
     }
+  }
+
+  function handlePastedText(text: string) {
+    const trimmed = text.trim();
+    if (trimmed.length < 200) {
+      setStage({
+        kind: "error",
+        message: "Pasted text is too short. Please paste at least 200 characters.",
+      });
+      return;
+    }
+    const capped = trimmed.length > 60_000 ? trimmed.slice(0, 60_000) : trimmed;
+    const data: ExtractedPdf = {
+      text: capped,
+      pages: 1,
+      filename: "Pasted text",
+      meta: { title: null, author: null },
+      truncated: trimmed.length > 60_000,
+    };
+    setStage({ kind: "extracted", data });
   }
 
   async function runAnalysis(data: ExtractedPdf) {
@@ -338,57 +361,148 @@ export function Uploader() {
         </button>
       </div>
 
-      {/* Dropzone or status */}
+      {/* Input zone (PDF primary · Paste text secondary) */}
       {stage.kind === "idle" || stage.kind === "error" ? (
         <motion.div
           initial={reduced ? false : { opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4 }}
-          className={`mt-6 dropzone ${drag ? "dropzone--active" : ""} p-8 sm:p-12 text-center`}
-          onDragOver={(e) => {
-            e.preventDefault();
-            setDrag(true);
-          }}
-          onDragLeave={() => setDrag(false)}
-          onDrop={(e) => {
-            e.preventDefault();
-            setDrag(false);
-            const f = e.dataTransfer.files?.[0];
-            if (f) handleFile(f);
-          }}
+          className="mt-6"
         >
-          <div className="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-[color-mix(in_oklab,var(--violet)_14%,var(--surface))] text-[var(--violet)]">
-            <Upload className="h-6 w-6" />
-          </div>
-          <h3 className="mt-4 text-xl font-semibold tracking-tight">
-            Drop a PDF, or click to browse
-          </h3>
-          <p className="mt-1.5 text-sm text-[var(--text-muted)]">
-            Up to 25&nbsp;MB. Text is extracted in your browser before any
-            analysis.
-          </p>
-          <div className="mt-5 flex flex-wrap items-center justify-center gap-2.5">
+          {/* Tab switcher */}
+          <div
+            role="tablist"
+            aria-label="Choose how to provide your paper"
+            className="inline-flex items-center gap-1 p-1 rounded-xl border border-[var(--border)] bg-[var(--surface-soft)]"
+          >
             <button
-              onClick={() => fileRef.current?.click()}
-              className="btn-primary text-sm"
+              role="tab"
+              aria-selected={inputMode === "pdf"}
+              onClick={() => {
+                setInputMode("pdf");
+                if (stage.kind === "error") setStage({ kind: "idle" });
+              }}
+              className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${
+                inputMode === "pdf"
+                  ? "bg-[var(--surface)] text-[var(--ink)] shadow-sm"
+                  : "text-[var(--text-muted)] hover:text-[var(--text-soft)]"
+              }`}
             >
-              <Upload className="h-4 w-4" />
-              Choose PDF
+              <Upload className="h-3.5 w-3.5" />
+              Upload PDF
+              <span className="ml-1 text-[0.62rem] tracking-[0.16em] uppercase text-[var(--violet)]">
+                Primary
+              </span>
             </button>
-            <span className="text-xs text-[var(--text-muted)]">
-              or drag &amp; drop here
-            </span>
+            <button
+              role="tab"
+              aria-selected={inputMode === "text"}
+              onClick={() => {
+                setInputMode("text");
+                if (stage.kind === "error") setStage({ kind: "idle" });
+              }}
+              className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${
+                inputMode === "text"
+                  ? "bg-[var(--surface)] text-[var(--ink)] shadow-sm"
+                  : "text-[var(--text-muted)] hover:text-[var(--text-soft)]"
+              }`}
+            >
+              <ClipboardPaste className="h-3.5 w-3.5" />
+              Paste text
+              <span className="ml-1 text-[0.62rem] tracking-[0.16em] uppercase text-[var(--text-muted)]">
+                Bonus
+              </span>
+            </button>
           </div>
-          <input
-            ref={fileRef}
-            type="file"
-            accept="application/pdf,.pdf"
-            className="hidden"
-            onChange={(e) => {
-              const f = e.target.files?.[0];
-              if (f) handleFile(f);
-            }}
-          />
+
+          {inputMode === "pdf" ? (
+            <div
+              className={`mt-3 dropzone ${drag ? "dropzone--active" : ""} p-8 sm:p-12 text-center`}
+              onDragOver={(e) => {
+                e.preventDefault();
+                setDrag(true);
+              }}
+              onDragLeave={() => setDrag(false)}
+              onDrop={(e) => {
+                e.preventDefault();
+                setDrag(false);
+                const f = e.dataTransfer.files?.[0];
+                if (f) handleFile(f);
+              }}
+            >
+              <div className="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-[color-mix(in_oklab,var(--violet)_14%,var(--surface))] text-[var(--violet)]">
+                <Upload className="h-6 w-6" />
+              </div>
+              <h3 className="mt-4 text-xl font-semibold tracking-tight">
+                Drop a PDF, or click to browse
+              </h3>
+              <p className="mt-1.5 text-sm text-[var(--text-muted)]">
+                Up to 25&nbsp;MB. Text is extracted in your browser before any
+                analysis.
+              </p>
+              <div className="mt-5 flex flex-wrap items-center justify-center gap-2.5">
+                <button
+                  onClick={() => fileRef.current?.click()}
+                  className="btn-primary text-sm"
+                >
+                  <Upload className="h-4 w-4" />
+                  Choose PDF
+                </button>
+                <span className="text-xs text-[var(--text-muted)]">
+                  or drag &amp; drop here
+                </span>
+              </div>
+              <input
+                ref={fileRef}
+                type="file"
+                accept="application/pdf,.pdf"
+                className="hidden"
+                onChange={(e) => {
+                  const f = e.target.files?.[0];
+                  if (f) handleFile(f);
+                }}
+              />
+            </div>
+          ) : (
+            <div className="mt-3 card p-5 sm:p-6">
+              <label
+                htmlFor="quilix-pasted-text"
+                className="flex items-center gap-2 text-sm font-semibold tracking-tight text-[var(--ink)]"
+              >
+                <ClipboardPaste className="h-4 w-4 text-[var(--violet)]" />
+                Paste your paper text
+              </label>
+              <p className="mt-1 text-xs text-[var(--text-muted)]">
+                For when you don&apos;t have the PDF handy. Paste the abstract +
+                body + references; Quilix will detect sections and produce the
+                same three deliverables.
+              </p>
+              <textarea
+                id="quilix-pasted-text"
+                value={pastedText}
+                onChange={(e) => setPastedText(e.target.value)}
+                placeholder="Paste your paper text here — abstract, sections, and references. Minimum 200 characters."
+                rows={10}
+                className="mt-3 w-full rounded-xl border border-[var(--border)] bg-[var(--surface-soft)] px-3.5 py-2.5 text-sm leading-relaxed text-[var(--text)] placeholder:text-[var(--text-muted)] focus:outline-none focus:ring-2 focus:ring-[color-mix(in_oklab,var(--violet)_45%,transparent)]"
+              />
+              <div className="mt-2 flex flex-wrap items-center justify-between gap-2 text-xs text-[var(--text-muted)]">
+                <span>
+                  <strong className="text-[var(--text-soft)]">
+                    {pastedText.trim().length.toLocaleString()}
+                  </strong>{" "}
+                  / 60,000 characters · 200 minimum
+                </span>
+                <button
+                  onClick={() => handlePastedText(pastedText)}
+                  disabled={pastedText.trim().length < 200}
+                  className="btn-primary text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <Sparkles className="h-3.5 w-3.5" />
+                  Analyze pasted text
+                </button>
+              </div>
+            </div>
+          )}
           {stage.kind === "error" && (
             <ErrorCard
               message={stage.message}
@@ -405,7 +519,12 @@ export function Uploader() {
                 setApiKey("");
               }}
               onRetry={() => stage.data && runAnalysis(stage.data)}
-              onPickAnother={() => fileRef.current?.click()}
+              onPickAnother={() => {
+                // Make sure the file input is mounted before clicking it.
+                setInputMode("pdf");
+                // The file input remounts on the next paint, so defer the click.
+                setTimeout(() => fileRef.current?.click(), 0);
+              }}
             />
           )}
         </motion.div>
