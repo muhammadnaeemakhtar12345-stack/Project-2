@@ -59,7 +59,7 @@ export function Results({ data, result, onReset }: Props) {
       className="mt-6 space-y-5"
     >
       {/* Header card */}
-      <div className="card card-lift p-6">
+      <div className="card card-lift p-6 relative overflow-hidden result-header">
         <div className="flex flex-wrap items-start gap-6">
           <div className="flex items-start gap-4 min-w-0 flex-1">
             <div className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-[color-mix(in_oklab,var(--violet)_14%,var(--surface))] text-[var(--violet)]">
@@ -133,30 +133,40 @@ export function Results({ data, result, onReset }: Props) {
             ["Impact", result.scores.impact, "amber"],
             ["Originality", originality, "emerald"],
           ] as Array<[string, number, string]>
-        ).map(([label, value, hue]) => (
-          <div key={label} className="card card-lift p-4">
+        ).map(([label, value, hue], i) => (
+          <motion.div
+            key={label}
+            initial={reduced ? false : { opacity: 0, y: 10 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.4 }}
+            transition={{ duration: 0.45, delay: i * 0.05 }}
+            className={`score-card score-card--${hue} p-4`}
+          >
             <div className="flex items-center justify-between">
-              <div className="text-[0.65rem] tracking-[0.18em] uppercase text-[var(--text-muted)]">
+              <div className="text-[0.65rem] tracking-[0.18em] uppercase text-[var(--text-muted)] font-medium">
                 {label}
               </div>
               <span className={`badge badge-${hue}`}>{value}/100</span>
             </div>
             <div className="mt-3 h-2 rounded-full bg-[var(--border)] overflow-hidden">
-              <div
-                className="h-full rounded-full"
-                style={{
-                  width: `${value}%`,
-                  background:
-                    "linear-gradient(90deg, var(--violet), var(--fuchsia))",
+              <motion.div
+                initial={reduced ? false : { width: 0 }}
+                whileInView={{ width: `${value}%` }}
+                viewport={{ once: true, amount: 0.4 }}
+                transition={{
+                  duration: 0.9,
+                  delay: 0.15 + i * 0.05,
+                  ease: [0.22, 1, 0.36, 1],
                 }}
+                className={`score-bar score-bar--${hue} h-full rounded-full`}
               />
             </div>
-          </div>
+          </motion.div>
         ))}
       </div>
 
       {/* Plagiarism risk panel */}
-      <div className="card card-lift p-6">
+      <div className="card card-lift p-6 result-verdict">
         <div className="flex flex-wrap items-start gap-5">
           <div className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-[color-mix(in_oklab,var(--emerald)_14%,var(--surface))] text-[var(--emerald)]">
             <ShieldCheck className="h-5 w-5" />

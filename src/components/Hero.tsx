@@ -79,7 +79,7 @@ export function Hero() {
                 Begin a synthesis <ArrowRight className="h-4 w-4" />
               </a>
               <a href="#how" className="btn-ghost">
-                How the workflow runs
+                See how it works
               </a>
             </motion.div>
 

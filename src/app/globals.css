@@ -601,6 +601,106 @@ body {
   font-weight: 700;
 }
 
+/* ---------- Premium score cards (per-metric hue) ---------- */
+.score-card {
+  position: relative;
+  border-radius: 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  overflow: hidden;
+  transition:
+    transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.35s ease;
+  will-change: transform;
+}
+.score-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    180deg,
+    color-mix(in oklab, var(--score-hue, var(--violet)) 6%, transparent) 0%,
+    transparent 70%
+  );
+  pointer-events: none;
+}
+.score-card:hover {
+  transform: translateY(-3px);
+  border-color: color-mix(in oklab, var(--score-hue, var(--violet)) 35%, var(--border));
+  box-shadow:
+    0 1px 2px rgba(15, 23, 42, 0.04),
+    0 22px 44px -22px color-mix(in oklab, var(--score-hue, var(--violet)) 50%, transparent);
+}
+.score-card--violet   { --score-hue: var(--violet); }
+.score-card--fuchsia  { --score-hue: var(--fuchsia); }
+.score-card--sky      { --score-hue: var(--sky); }
+.score-card--amber    { --score-hue: var(--amber); }
+.score-card--emerald  { --score-hue: var(--emerald); }
+
+.score-bar {
+  background: linear-gradient(
+    90deg,
+    color-mix(in oklab, var(--score-hue, var(--violet)) 85%, white),
+    var(--score-hue, var(--violet))
+  );
+  box-shadow: 0 0 12px -2px color-mix(in oklab, var(--score-hue, var(--violet)) 70%, transparent);
+}
+.score-bar--violet   { --score-hue: var(--violet); }
+.score-bar--fuchsia  { --score-hue: var(--fuchsia); }
+.score-bar--sky      { --score-hue: var(--sky); }
+.score-bar--amber    { --score-hue: var(--amber); }
+.score-bar--emerald  { --score-hue: var(--emerald); }
+
+/* ---------- Result header halo ---------- */
+.result-header::before {
+  content: "";
+  position: absolute;
+  top: -40%;
+  left: -10%;
+  right: -10%;
+  height: 80%;
+  border-radius: 50%;
+  background: radial-gradient(
+    ellipse at center,
+    color-mix(in oklab, var(--violet) 18%, transparent) 0%,
+    transparent 70%
+  );
+  pointer-events: none;
+  filter: blur(40px);
+  opacity: 0.7;
+}
+[data-theme="dark"] .result-header::before {
+  opacity: 0.55;
+}
+.result-header > * { position: relative; z-index: 1; }
+
+/* ---------- Result verdict halo (emerald) ---------- */
+.result-verdict {
+  position: relative;
+  overflow: hidden;
+}
+.result-verdict::before {
+  content: "";
+  position: absolute;
+  top: -40%;
+  right: -10%;
+  width: 60%;
+  height: 80%;
+  border-radius: 50%;
+  background: radial-gradient(
+    ellipse at center,
+    color-mix(in oklab, var(--emerald) 16%, transparent) 0%,
+    transparent 70%
+  );
+  pointer-events: none;
+  filter: blur(40px);
+  opacity: 0.7;
+}
+[data-theme="dark"] .result-verdict::before { opacity: 0.5; }
+.result-verdict > * { position: relative; z-index: 1; }
+
 /* ---------- Misc utilities ---------- */
 .dropzone {
   border: 1.5px dashed color-mix(in oklab, var(--violet) 40%, var(--border));
