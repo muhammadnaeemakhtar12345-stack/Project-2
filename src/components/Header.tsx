@@ -37,13 +37,13 @@ export function Header() {
             href="#how"
             className="relative hover:text-[var(--ink)] transition-colors after:absolute after:left-0 after:right-0 after:-bottom-1 after:h-px after:scale-x-0 after:origin-left after:bg-[var(--ink)] after:transition-transform after:duration-300 hover:after:scale-x-100"
           >
-            Workflow
+            How it works
           </a>
           <a
             href="#features"
             className="relative hover:text-[var(--ink)] transition-colors after:absolute after:left-0 after:right-0 after:-bottom-1 after:h-px after:scale-x-0 after:origin-left after:bg-[var(--ink)] after:transition-transform after:duration-300 hover:after:scale-x-100"
           >
-            Edition
+            Features
           </a>
           <a
             href="#analyze"

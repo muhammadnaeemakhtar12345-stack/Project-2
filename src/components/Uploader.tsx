@@ -212,28 +212,52 @@ export function Uploader() {
           Upload, paraphrase, cite — in one <em>calm</em> sitting.
         </h2>
         <p className="mt-5 text-[var(--text-soft)] leading-[1.7] max-w-xl">
-          Drop a PDF, choose a voice, connect any AI provider with your own
-          key, and Quilix returns a section-aware synthesis with paraphrases
-          and citation entries.
+          Drop a research PDF, pick a rewrite tone, connect any AI provider
+          with your own key, and Quilix returns a section-by-section synthesis
+          with paraphrases and ready-to-paste citations.
         </p>
       </div>
 
       {/* Toolbar */}
-      <div className="mt-8 flex flex-wrap items-center gap-3">
-        <div className="card flex items-center divide-x divide-[var(--border)] overflow-hidden text-sm">
-          {(["academic", "concise", "neutral"] as const).map((v) => (
-            <button
-              key={v}
-              onClick={() => persistVoice(v)}
-              className={`px-3.5 py-2 capitalize transition-colors ${
-                voice === v
-                  ? "bg-[color-mix(in_oklab,var(--violet)_14%,var(--surface))] text-[var(--violet)] font-semibold"
-                  : "hover:bg-[var(--surface-soft)] text-[var(--text-soft)]"
-              }`}
-            >
-              {v}
-            </button>
-          ))}
+      <div className="mt-8 flex flex-wrap items-end gap-3">
+        <div className="flex flex-col gap-1.5">
+          <span className="text-[0.62rem] tracking-[0.22em] uppercase text-[var(--text-muted)] font-medium">
+            Rewrite tone
+          </span>
+          <div className="card flex items-center divide-x divide-[var(--border)] overflow-hidden text-sm">
+            {(
+              [
+                {
+                  id: "academic",
+                  label: "Academic",
+                  hint: "Formal, scholarly phrasing",
+                },
+                {
+                  id: "concise",
+                  label: "Concise",
+                  hint: "Short, direct sentences",
+                },
+                {
+                  id: "neutral",
+                  label: "Neutral",
+                  hint: "Plain, balanced prose",
+                },
+              ] as const
+            ).map((v) => (
+              <button
+                key={v.id}
+                onClick={() => persistVoice(v.id)}
+                title={v.hint}
+                className={`px-3.5 py-2 transition-colors ${
+                  voice === v.id
+                    ? "bg-[color-mix(in_oklab,var(--violet)_14%,var(--surface))] text-[var(--violet)] font-semibold"
+                    : "hover:bg-[var(--surface-soft)] text-[var(--text-soft)]"
+                }`}
+              >
+                {v.label}
+              </button>
+            ))}
+          </div>
         </div>
         <button
           onClick={() => setShowKey(true)}

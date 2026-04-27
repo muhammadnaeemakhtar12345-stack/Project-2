@@ -26,7 +26,7 @@ const steps: Step[] = [
   },
   {
     icon: PenLine,
-    title: "Rewrite in your voice",
+    title: "Rewrite in your own words",
     body: "Each section is paraphrased in academic, concise, or neutral tone — never copying source phrasing.",
     accent: "fuchsia",
   },
