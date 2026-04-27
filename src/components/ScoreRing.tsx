@@ -82,15 +82,30 @@ export function ScoreRing({
           strokeDashoffset={offset}
         />
       </svg>
-      <div className="absolute inset-0 grid place-items-center text-center">
-        <div>
+      <div className="absolute inset-0 grid place-items-center text-center px-2">
+        <div
+          style={{
+            maxWidth: size - stroke * 2 - 6,
+            lineHeight: 1,
+          }}
+        >
           <div
-            className="text-[1.6rem] font-semibold tracking-tight"
-            style={{ color }}
+            className="font-semibold tracking-tight leading-none"
+            style={{
+              color,
+              fontSize: Math.max(18, Math.round(size * 0.28)),
+            }}
           >
             {shown}
           </div>
-          <div className="text-[0.65rem] uppercase tracking-[0.18em] text-[var(--text-muted)]">
+          <div
+            className="mt-1 uppercase text-[var(--text-muted)] font-medium"
+            style={{
+              fontSize: Math.max(8, Math.round(size * 0.085)),
+              letterSpacing: "0.12em",
+              lineHeight: 1.05,
+            }}
+          >
             {label}
           </div>
         </div>

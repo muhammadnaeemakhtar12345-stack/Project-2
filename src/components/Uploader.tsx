@@ -7,6 +7,7 @@ import {
   FileText,
   Hourglass,
   KeyRound,
+  Lock,
   Loader2,
   RotateCcw,
   Sparkles,
@@ -14,6 +15,7 @@ import {
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
+import { SignInButton, SignUpButton, useAuth } from "@clerk/nextjs";
 import { extractPdfText, type ExtractedPdf } from "@/lib/extractPdf";
 import { PROVIDERS, isProviderId, type ProviderId } from "@/lib/providers";
 import type { AnalysisResult } from "@/lib/types";
@@ -38,6 +40,7 @@ export function Uploader() {
   const fileRef = useRef<HTMLInputElement | null>(null);
   const [drag, setDrag] = useState(false);
   const [stage, setStage] = useState<Stage>({ kind: "idle" });
+  const { isLoaded: authLoaded, isSignedIn } = useAuth();
 
   const [providerId, setProviderId] = useState<ProviderId>("groq");
   const [model, setModel] = useState<string>(PROVIDERS.groq.defaultModel);
@@ -218,6 +221,47 @@ export function Uploader() {
         </p>
       </div>
 
+      {authLoaded && !isSignedIn && (
+        <motion.div
+          initial={reduced ? false : { opacity: 0, y: 14 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+          className="mt-8 card card-lift relative overflow-hidden p-8 sm:p-10"
+        >
+          <div className="absolute -top-24 -right-16 h-72 w-72 rounded-full bg-[color-mix(in_oklab,var(--violet)_18%,transparent)] blur-3xl pointer-events-none" />
+          <div className="relative flex flex-col sm:flex-row gap-6 sm:items-center">
+            <div className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl bg-[color-mix(in_oklab,var(--violet)_14%,var(--surface))] text-[var(--violet)]">
+              <Lock className="h-6 w-6" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="text-[0.62rem] tracking-[0.22em] uppercase text-[var(--text-muted)] font-medium">
+                Member workspace
+              </div>
+              <h3 className="mt-1.5 font-serif text-[1.6rem] leading-tight tracking-tight text-[var(--ink)]">
+                Sign in to analyse a paper
+              </h3>
+              <p className="mt-2 text-sm text-[var(--text-soft)] leading-relaxed max-w-xl">
+                Quilix keeps each analysis tied to your account so you can come
+                back to your reports. Create a free account or sign in — it
+                takes a few seconds, and you can use any AI provider key after
+                that.
+              </p>
+            </div>
+            <div className="flex flex-wrap items-center gap-2.5">
+              <SignInButton mode="modal">
+                <button className="btn-ghost text-sm">Sign in</button>
+              </SignInButton>
+              <SignUpButton mode="modal">
+                <button className="btn-primary text-sm">Create account</button>
+              </SignUpButton>
+            </div>
+          </div>
+        </motion.div>
+      )}
+
+      {authLoaded && isSignedIn && (
+        <>
+
       {/* Toolbar */}
       <div className="mt-8 flex flex-wrap items-end gap-3">
         <div className="flex flex-col gap-1.5">
@@ -373,6 +417,9 @@ export function Uploader() {
       {/* Done */}
       {stage.kind === "done" && (
         <Results data={stage.data} result={stage.result} onReset={reset} />
+      )}
+
+        </>
       )}
 
       <ApiKeyDialog

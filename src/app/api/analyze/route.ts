@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getAuth } from "@clerk/nextjs/server";
 import { SYSTEM_PROMPT, userPrompt } from "@/lib/groqPrompt";
 import { normalizeAnalysis, safeJsonParse } from "@/lib/normalize";
 import { PROVIDERS, isProviderId, type ProviderConfig } from "@/lib/providers";
@@ -16,6 +17,14 @@ const MAX_TOKENS = 1800;
 const MAX_TEXT_CHARS = 9000;
 
 export async function POST(req: NextRequest) {
+  const { userId } = getAuth(req);
+  if (!userId) {
+    return NextResponse.json(
+      { error: "Sign in to analyse a paper." },
+      { status: 401 },
+    );
+  }
+
   let body: AnalyzeRequestBody;
   try {
     body = (await req.json()) as AnalyzeRequestBody;

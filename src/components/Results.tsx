@@ -194,7 +194,7 @@ export function Results({ data, result, onReset }: Props) {
             )}
           </div>
           <div className="ml-auto">
-            <ScoreRing value={originality} size={92} stroke={9} label="ORIGINALITY" />
+            <ScoreRing value={originality} size={108} stroke={9} label="ORIGINAL" />
           </div>
         </div>
       </div>

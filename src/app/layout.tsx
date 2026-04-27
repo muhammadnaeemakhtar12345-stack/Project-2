@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, JetBrains_Mono, Fraunces } from "next/font/google";
+import { ClerkProvider } from "@clerk/nextjs";
 import "./globals.css";
 import { Providers } from "./providers";
 import { Header } from "@/components/Header";
@@ -49,19 +50,29 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html
-      lang="en"
-      suppressHydrationWarning
-      className={`${inter.variable} ${jetbrains.variable} ${fraunces.variable}`}
+    <ClerkProvider
+      appearance={{
+        variables: {
+          colorPrimary: "#7c3aed",
+          fontFamily: "var(--font-inter), ui-sans-serif, system-ui, sans-serif",
+          borderRadius: "12px",
+        },
+      }}
     >
-      <body className="min-h-screen flex flex-col">
-        <Providers>
-          <ScrollProgress />
-          <Header />
-          <main className="flex-1">{children}</main>
-          <Footer />
-        </Providers>
-      </body>
-    </html>
+      <html
+        lang="en"
+        suppressHydrationWarning
+        className={`${inter.variable} ${jetbrains.variable} ${fraunces.variable}`}
+      >
+        <body className="min-h-screen flex flex-col">
+          <Providers>
+            <ScrollProgress />
+            <Header />
+            <main className="flex-1">{children}</main>
+            <Footer />
+          </Providers>
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }
